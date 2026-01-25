@@ -5,7 +5,7 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { AuthProvider } from "@/contexts/AuthContext";
-import IntroAnimation from "@/components/IntroAnimation";
+import HardcodedIntro from "@/components/HardcodedIntro";
 import Index from "./pages/Index";
 import Auth from "./pages/Auth";
 import ComboDetail from "./pages/ComboDetail";
@@ -15,6 +15,11 @@ import CategoryPage from "./pages/CategoryPage";
 import Cart from "./pages/Cart";
 import Checkout from "./pages/Checkout";
 import OrderConfirmation from "./pages/OrderConfirmation";
+import Profile from "./pages/Profile";
+import Orders from "./pages/Orders";
+import Addresses from "./pages/Addresses";
+import Wishlist from "./pages/Wishlist";
+import AccountSettings from "./pages/Settings";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -32,7 +37,7 @@ const App = () => {
         <TooltipProvider>
           <Toaster />
           <Sonner />
-          {showIntro && <IntroAnimation onComplete={handleIntroComplete} />}
+          {showIntro && <HardcodedIntro onComplete={handleIntroComplete} />}
           <BrowserRouter>
             <Routes>
               <Route path="/" element={<Index />} />
@@ -44,6 +49,11 @@ const App = () => {
               <Route path="/cart" element={<Cart />} />
               <Route path="/checkout" element={<Checkout />} />
               <Route path="/order-confirmation" element={<OrderConfirmation />} />
+              <Route path="/profile" element={<Profile />} />
+              <Route path="/orders" element={<Orders />} />
+              <Route path="/addresses" element={<Addresses />} />
+              <Route path="/wishlist" element={<Wishlist />} />
+              <Route path="/settings" element={<AccountSettings />} />
               <Route path="*" element={<NotFound />} />
             </Routes>
           </BrowserRouter>

@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
-import { Search, ShoppingCart, User, MapPin, Menu, X, ChevronDown, LogOut, Settings, UserCircle } from "lucide-react";
+import { Search, ShoppingCart, User, MapPin, Menu, X, ChevronDown, LogOut, Settings, UserCircle, Heart } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useAuth } from "@/contexts/AuthContext";
@@ -102,7 +102,7 @@ const Header = () => {
 
             {/* User Profile Dropdown */}
             {user ? (
-              <div className="hidden md:relative">
+              <div className="relative">
                 <motion.button
                   whileHover={{ scale: 1.05 }}
                   whileTap={{ scale: 0.95 }}
@@ -113,7 +113,7 @@ const Header = () => {
                   className="flex items-center gap-2 p-2 md:p-3 rounded-full bg-card hover:bg-muted transition-colors"
                 >
                   <UserCircle className="w-6 h-6 text-foreground" />
-                  <span className="text-sm font-medium hidden lg:block">
+                  <span className="text-sm font-medium hidden md:block">
                     {user.email?.split('@')[0] || 'User'}
                   </span>
                   <ChevronDown className={`w-4 h-4 transition-transform ${isUserMenuOpen ? "rotate-180" : ""}`} />
@@ -180,6 +180,18 @@ const Header = () => {
                         >
                           <MapPin className="w-5 h-5 text-muted-foreground" />
                           <span>My Addresses</span>
+                        </Link>
+                        
+                        <Link 
+                          to="/wishlist" 
+                          className="flex items-center gap-3 px-4 py-3 hover:bg-muted transition-colors"
+                          onClick={() => {
+                            console.log('Wishlist link clicked');
+                            setIsUserMenuOpen(false);
+                          }}
+                        >
+                          <Heart className="w-5 h-5 text-muted-foreground" />
+                          <span>Wishlist</span>
                         </Link>
                         
                         <Link 
@@ -363,6 +375,18 @@ const Header = () => {
                     >
                       <MapPin className="w-5 h-5 text-muted-foreground" />
                       <span>My Addresses</span>
+                    </Link>
+                    
+                    <Link 
+                      to="/wishlist" 
+                      className="flex items-center gap-3 px-4 py-3 rounded-lg hover:bg-muted transition-colors"
+                      onClick={() => {
+                        setIsMenuOpen(false);
+                        setIsUserMenuOpen(false);
+                      }}
+                    >
+                      <Heart className="w-5 h-5 text-muted-foreground" />
+                      <span>Wishlist</span>
                     </Link>
                     
                     <Link 

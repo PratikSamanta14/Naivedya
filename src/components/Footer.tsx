@@ -1,5 +1,5 @@
 import { motion } from "framer-motion";
-import { MapPin, Phone, Mail, Facebook, Instagram, Twitter, Youtube } from "lucide-react";
+import { MapPin, Phone, Mail, Instagram, Linkedin } from "lucide-react";
 import logo from "@/assets/logo.png";
 
 const Footer = () => {
@@ -125,19 +125,16 @@ const Footer = () => {
             </p>
 
             {/* Social Links */}
-            <div className="flex items-center gap-4">
-              <a href="#" className="p-2 rounded-full bg-accent-foreground/10 hover:bg-accent-foreground/20 transition-colors">
-                <Facebook className="w-4 h-4" />
-              </a>
-              <a href="#" className="p-2 rounded-full bg-accent-foreground/10 hover:bg-accent-foreground/20 transition-colors">
-                <Instagram className="w-4 h-4" />
-              </a>
-              <a href="#" className="p-2 rounded-full bg-accent-foreground/10 hover:bg-accent-foreground/20 transition-colors">
-                <Twitter className="w-4 h-4" />
-              </a>
-              <a href="#" className="p-2 rounded-full bg-accent-foreground/10 hover:bg-accent-foreground/20 transition-colors">
-                <Youtube className="w-4 h-4" />
-              </a>
+            <div className="flex flex-col items-center md:items-start">
+              <p className="text-sm opacity-70 mb-3">Follow us on :</p>
+              <div className="flex items-center gap-4">
+                <a href="https://www.linkedin.com/company/111563178/admin/dashboard/" target="_blank" rel="noopener noreferrer" className="p-2 rounded-full bg-accent-foreground/10 hover:bg-accent-foreground/20 transition-colors">
+                  <Linkedin className="w-4 h-4" />
+                </a>
+                <a href="#" className="p-2 rounded-full bg-accent-foreground/10 hover:bg-accent-foreground/20 transition-colors">
+                  <Instagram className="w-4 h-4" />
+                </a>
+              </div>
             </div>
           </div>
         </div>
