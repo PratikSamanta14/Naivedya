@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { useNavigate, Link } from "react-router-dom";
-import { Eye, EyeOff, Mail, Lock, Loader2, X, Menu } from "lucide-react";
+import { Eye, EyeOff, Mail, Lock, Loader2, X, Menu, User, Phone, MapPin } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useAuth } from "@/contexts/AuthContext";
@@ -11,14 +11,20 @@ import { z } from "zod";
 
 const emailSchema = z.string().email("Please enter a valid email address");
 const passwordSchema = z.string().min(6, "Password must be at least 6 characters");
+const phoneSchema = z.string().min(10, "Phone number must be at least 10 digits");
+const nameSchema = z.string().min(2, "Name must be at least 2 characters");
+const addressSchema = z.string().min(5, "Address must be at least 5 characters");
 
 const Auth = () => {
   const [isLogin, setIsLogin] = useState(true);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [fullName, setFullName] = useState("");
+  const [phone, setPhone] = useState("");
+  const [address, setAddress] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
-  const [errors, setErrors] = useState<{ email?: string; password?: string }>({});
+  const [errors, setErrors] = useState<{ email?: string; password?: string; fullName?: string; phone?: string; address?: string }>({});
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   const { user, signIn, signUp } = useAuth();
@@ -32,8 +38,8 @@ const Auth = () => {
   }, [user, navigate]);
 
   const validateForm = () => {
-    const newErrors: { email?: string; password?: string } = {};
-    
+    const newErrors: { email?: string; password?: string; fullName?: string; phone?: string; address?: string } = {};
+
     const emailResult = emailSchema.safeParse(email);
     if (!emailResult.success) {
       newErrors.email = emailResult.error.errors[0].message;
@@ -44,15 +50,32 @@ const Auth = () => {
       newErrors.password = passwordResult.error.errors[0].message;
     }
 
+    if (!isLogin) {
+      const nameResult = nameSchema.safeParse(fullName);
+      if (!nameResult.success) {
+        newErrors.fullName = nameResult.error.errors[0].message;
+      }
+
+      const phoneResult = phoneSchema.safeParse(phone);
+      if (!phoneResult.success) {
+        newErrors.phone = phoneResult.error.errors[0].message;
+      }
+
+      const addressResult = addressSchema.safeParse(address);
+      if (!addressResult.success) {
+        newErrors.address = addressResult.error.errors[0].message;
+      }
+    }
+
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     if (!validateForm()) return;
-    
+
     setLoading(true);
 
     try {
@@ -79,7 +102,11 @@ const Auth = () => {
           });
         }
       } else {
-        const { error } = await signUp(email, password);
+        const { error } = await signUp(email, password, {
+          full_name: fullName,
+          phone,
+          address
+        });
         if (error) {
           if (error.message.includes("already registered")) {
             toast({
@@ -149,8 +176,8 @@ const Auth = () => {
                   <span className="text-muted-foreground text-sm hidden sm:block">
                     New customer?
                   </span>
-                  <Button 
-                    variant="outline" 
+                  <Button
+                    variant="outline"
                     size="sm"
                     onClick={() => {
                       setIsLogin(false);
@@ -165,8 +192,8 @@ const Auth = () => {
                   <span className="text-muted-foreground text-sm hidden sm:block">
                     Have an account?
                   </span>
-                  <Button 
-                    variant="outline" 
+                  <Button
+                    variant="outline"
                     size="sm"
                     onClick={() => {
                       setIsLogin(true);
@@ -177,10 +204,10 @@ const Auth = () => {
                   </Button>
                 </>
               )}
-              
+
               {/* Mobile Menu Button */}
-              <Button 
-                variant="ghost" 
+              <Button
+                variant="ghost"
                 size="icon"
                 className="md:hidden"
                 onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
@@ -199,29 +226,29 @@ const Auth = () => {
               className="md:hidden border-t border-border py-4"
             >
               <nav className="flex flex-col gap-4">
-                <Link 
-                  to="/" 
+                <Link
+                  to="/"
                   className="text-foreground hover:text-primary transition-colors py-2"
                   onClick={() => setMobileMenuOpen(false)}
                 >
                   Home
                 </Link>
-                <Link 
-                  to="/category/puja-samagri" 
+                <Link
+                  to="/category/puja-samagri"
                   className="text-foreground hover:text-primary transition-colors py-2"
                   onClick={() => setMobileMenuOpen(false)}
                 >
                   Shop
                 </Link>
-                <Link 
-                  to="/category/book-pandit" 
+                <Link
+                  to="/category/book-pandit"
                   className="text-foreground hover:text-primary transition-colors py-2"
                   onClick={() => setMobileMenuOpen(false)}
                 >
                   Book Pandit
                 </Link>
-                <Link 
-                  to="#" 
+                <Link
+                  to="#"
                   className="text-foreground hover:text-primary transition-colors py-2"
                   onClick={() => setMobileMenuOpen(false)}
                 >
@@ -285,6 +312,75 @@ const Auth = () => {
               </div>
 
               <form onSubmit={handleSubmit} className="space-y-5">
+                {!isLogin && (
+                  <>
+                    <div>
+                      <label className="block text-sm font-medium text-foreground mb-2">
+                        Full Name
+                      </label>
+                      <div className="relative">
+                        <User className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
+                        <Input
+                          type="text"
+                          value={fullName}
+                          onChange={(e) => {
+                            setFullName(e.target.value);
+                            setErrors((prev) => ({ ...prev, fullName: undefined }));
+                          }}
+                          placeholder="John Doe"
+                          className={`pl-12 h-12 ${errors.fullName ? "border-destructive" : ""}`}
+                        />
+                      </div>
+                      {errors.fullName && (
+                        <p className="text-destructive text-sm mt-1">{errors.fullName}</p>
+                      )}
+                    </div>
+
+                    <div>
+                      <label className="block text-sm font-medium text-foreground mb-2">
+                        Phone Number
+                      </label>
+                      <div className="relative">
+                        <Phone className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
+                        <Input
+                          type="tel"
+                          value={phone}
+                          onChange={(e) => {
+                            setPhone(e.target.value);
+                            setErrors((prev) => ({ ...prev, phone: undefined }));
+                          }}
+                          placeholder="+91 98765 43210"
+                          className={`pl-12 h-12 ${errors.phone ? "border-destructive" : ""}`}
+                        />
+                      </div>
+                      {errors.phone && (
+                        <p className="text-destructive text-sm mt-1">{errors.phone}</p>
+                      )}
+                    </div>
+
+                    <div>
+                      <label className="block text-sm font-medium text-foreground mb-2">
+                        Address
+                      </label>
+                      <div className="relative">
+                        <MapPin className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
+                        <Input
+                          type="text"
+                          value={address}
+                          onChange={(e) => {
+                            setAddress(e.target.value);
+                            setErrors((prev) => ({ ...prev, address: undefined }));
+                          }}
+                          placeholder="Street, City, Zip Code"
+                          className={`pl-12 h-12 ${errors.address ? "border-destructive" : ""}`}
+                        />
+                      </div>
+                      {errors.address && (
+                        <p className="text-destructive text-sm mt-1">{errors.address}</p>
+                      )}
+                    </div>
+                  </>
+                )}
                 <div>
                   <label className="block text-sm font-medium text-foreground mb-2">
                     Email Address

@@ -7,6 +7,7 @@ import { Input } from "@/components/ui/input";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import { useToast } from "@/hooks/use-toast";
+import { useCart } from "@/contexts/CartContext";
 
 const Checkout = () => {
   const navigate = useNavigate();
@@ -64,27 +65,52 @@ const Checkout = () => {
     if (currentStep > 1) setCurrentStep(currentStep - 1);
   };
 
+  const { items: cartItems, subtotal, clearCart } = useCart();
+
+  const discount = Math.round(subtotal * 0.1); // Mock discount logic
+  const deliveryFee = subtotal > 500 ? 0 : 49;
+  const total = subtotal - discount + deliveryFee;
+
   const handlePlaceOrder = async () => {
     setLoading(true);
     // Simulate order processing
     await new Promise((resolve) => setTimeout(resolve, 2000));
+
+    // Prepare order details
+    const orderDetails = {
+      orderId: "NAI" + Math.random().toString(36).substr(2, 9).toUpperCase(),
+      date: new Date().toLocaleDateString("en-IN", { day: "numeric", month: "long", year: "numeric" }),
+      items: cartItems,
+      subtotal,
+      discount,
+      delivery: deliveryFee,
+      total,
+      deliveryDate: new Date(Date.now() + 2 * 24 * 60 * 60 * 1000).toLocaleDateString("en-IN", { day: "numeric", month: "long" }),
+      deliverySlot: formData.deliverySlot || "9:00 AM - 11:00 AM",
+      pandit: "Pandit Ramesh Bhattacharya", // Mock
+      pujaDate: new Date(Date.now() + 3 * 24 * 60 * 60 * 1000).toLocaleDateString("en-IN", { day: "numeric", month: "long" }),
+      shippingAddress: formData // Pass address if needed for invoice
+    };
+
+    clearCart();
     setLoading(false);
-    navigate("/order-confirmation");
+    navigate("/order-confirmation", { state: orderDetails });
   };
 
-  // Order summary (mock data)
+  const itemsCount = cartItems.reduce((acc, item) => acc + item.quantity, 0);
+
   const orderSummary = {
-    items: 3,
-    subtotal: 964,
-    discount: 96,
-    delivery: 0,
-    total: 868,
+    items: itemsCount,
+    subtotal: subtotal,
+    discount: discount,
+    delivery: deliveryFee,
+    total: total,
   };
 
   return (
     <div className="min-h-screen flex flex-col bg-background">
       <Header />
-      
+
       <main className="flex-1">
         {/* Breadcrumb */}
         <div className="bg-muted/50 border-b border-border">
@@ -102,12 +128,10 @@ const Checkout = () => {
             <div className="flex items-center gap-2 md:gap-4">
               {steps.map((step, index) => (
                 <div key={step.id} className="flex items-center">
-                  <div className={`flex items-center gap-2 ${
-                    currentStep >= step.id ? "text-primary" : "text-muted-foreground"
-                  }`}>
-                    <div className={`w-10 h-10 rounded-full flex items-center justify-center border-2 transition-colors ${
-                      currentStep >= step.id ? "bg-primary border-primary text-primary-foreground" : "border-muted-foreground"
+                  <div className={`flex items-center gap-2 ${currentStep >= step.id ? "text-primary" : "text-muted-foreground"
                     }`}>
+                    <div className={`w-10 h-10 rounded-full flex items-center justify-center border-2 transition-colors ${currentStep >= step.id ? "bg-primary border-primary text-primary-foreground" : "border-muted-foreground"
+                      }`}>
                       {currentStep > step.id ? (
                         <Check className="w-5 h-5" />
                       ) : (
@@ -117,9 +141,8 @@ const Checkout = () => {
                     <span className="hidden md:block font-medium">{step.title}</span>
                   </div>
                   {index < steps.length - 1 && (
-                    <div className={`w-8 md:w-16 h-0.5 mx-2 ${
-                      currentStep > step.id ? "bg-primary" : "bg-muted"
-                    }`} />
+                    <div className={`w-8 md:w-16 h-0.5 mx-2 ${currentStep > step.id ? "bg-primary" : "bg-muted"
+                      }`} />
                   )}
                 </div>
               ))}
@@ -139,7 +162,7 @@ const Checkout = () => {
                 {currentStep === 1 && (
                   <div className="space-y-6">
                     <h2 className="font-heading text-2xl font-bold">Delivery Address</h2>
-                    
+
                     <div className="grid md:grid-cols-2 gap-4">
                       <div>
                         <label className="block text-sm font-medium mb-2">Full Name</label>
@@ -203,7 +226,7 @@ const Checkout = () => {
                 {currentStep === 2 && (
                   <div className="space-y-6">
                     <h2 className="font-heading text-2xl font-bold">Occasion Details</h2>
-                    
+
                     <div>
                       <label className="block text-sm font-medium mb-2">Puja/Occasion Date</label>
                       <Input
@@ -223,11 +246,10 @@ const Checkout = () => {
                             key={festival}
                             type="button"
                             onClick={() => setFormData({ ...formData, festival })}
-                            className={`p-3 rounded-xl border-2 text-sm transition-all ${
-                              formData.festival === festival
-                                ? "border-primary bg-primary/10"
-                                : "border-border hover:border-primary/50"
-                            }`}
+                            className={`p-3 rounded-xl border-2 text-sm transition-all ${formData.festival === festival
+                              ? "border-primary bg-primary/10"
+                              : "border-border hover:border-primary/50"
+                              }`}
                           >
                             {festival}
                           </button>
@@ -248,7 +270,7 @@ const Checkout = () => {
                 {currentStep === 3 && (
                   <div className="space-y-6">
                     <h2 className="font-heading text-2xl font-bold">Delivery Slot</h2>
-                    
+
                     <p className="text-muted-foreground">
                       Choose a delivery slot. We recommend selecting a slot at least 2 hours before your puja time.
                     </p>
@@ -259,11 +281,10 @@ const Checkout = () => {
                           key={slot}
                           type="button"
                           onClick={() => setFormData({ ...formData, deliverySlot: slot })}
-                          className={`p-4 rounded-xl border-2 text-left transition-all ${
-                            formData.deliverySlot === slot
-                              ? "border-primary bg-primary/10"
-                              : "border-border hover:border-primary/50"
-                          }`}
+                          className={`p-4 rounded-xl border-2 text-left transition-all ${formData.deliverySlot === slot
+                            ? "border-primary bg-primary/10"
+                            : "border-border hover:border-primary/50"
+                            }`}
                         >
                           <Clock className="w-5 h-5 text-primary mb-2" />
                           <p className="font-medium">{slot}</p>
@@ -278,7 +299,7 @@ const Checkout = () => {
                 {currentStep === 4 && (
                   <div className="space-y-6">
                     <h2 className="font-heading text-2xl font-bold">Payment Method</h2>
-                    
+
                     <div className="space-y-3">
                       {[
                         { id: "cod", label: "Cash on Delivery", icon: "💵", description: "Pay when you receive" },
@@ -289,20 +310,18 @@ const Checkout = () => {
                           key={method.id}
                           type="button"
                           onClick={() => setFormData({ ...formData, paymentMethod: method.id })}
-                          className={`w-full p-4 rounded-xl border-2 text-left flex items-center gap-4 transition-all ${
-                            formData.paymentMethod === method.id
-                              ? "border-primary bg-primary/10"
-                              : "border-border hover:border-primary/50"
-                          }`}
+                          className={`w-full p-4 rounded-xl border-2 text-left flex items-center gap-4 transition-all ${formData.paymentMethod === method.id
+                            ? "border-primary bg-primary/10"
+                            : "border-border hover:border-primary/50"
+                            }`}
                         >
                           <span className="text-3xl">{method.icon}</span>
                           <div>
                             <p className="font-medium">{method.label}</p>
                             <p className="text-sm text-muted-foreground">{method.description}</p>
                           </div>
-                          <div className={`ml-auto w-5 h-5 rounded-full border-2 flex items-center justify-center ${
-                            formData.paymentMethod === method.id ? "border-primary bg-primary" : "border-muted-foreground"
-                          }`}>
+                          <div className={`ml-auto w-5 h-5 rounded-full border-2 flex items-center justify-center ${formData.paymentMethod === method.id ? "border-primary bg-primary" : "border-muted-foreground"
+                            }`}>
                             {formData.paymentMethod === method.id && (
                               <Check className="w-3 h-3 text-primary-foreground" />
                             )}
@@ -322,7 +341,7 @@ const Checkout = () => {
                   >
                     Back
                   </Button>
-                  
+
                   {currentStep < 4 ? (
                     <Button variant="festive" onClick={handleNext}>
                       Continue

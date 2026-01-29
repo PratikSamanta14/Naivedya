@@ -100,7 +100,7 @@
 //               {/* Image / Avatar */}
 //               <div className="relative h-32 bg-gradient-to-br from-primary/10 via-secondary/10 to-accent/10 flex items-center justify-center">
 //                 <span className="text-6xl">{pandit.image}</span>
-                
+
 //                 {/* Availability Badge */}
 //                 <div className={`absolute top-3 right-3 px-2 py-1 text-xs font-semibold rounded-full ${
 //                   pandit.available 
@@ -116,9 +116,9 @@
 //                 <h3 className="font-heading text-lg font-bold text-foreground mb-1 line-clamp-1">
 //                   {pandit.name}
 //                 </h3>
-                
+
 //                 <p className="text-xs text-muted-foreground mb-2">{pandit.experience} experience</p>
-                
+
 //                 {/* Rating */}
 //                 <div className="flex items-center gap-1 mb-3">
 //                   <Star className="w-4 h-4 fill-secondary text-secondary" />
@@ -254,11 +254,10 @@ const PanditSection = () => {
               <div className="h-32 bg-gradient-to-br from-primary/10 to-secondary/10 flex items-center justify-center relative">
                 <span className="text-6xl">{pandit.image}</span>
                 <span
-                  className={`absolute top-3 right-3 px-2 py-1 text-xs rounded-full ${
-                    pandit.available
+                  className={`absolute top-3 right-3 px-2 py-1 text-xs rounded-full ${pandit.available
                       ? "bg-success/20 text-success"
                       : "bg-muted text-muted-foreground"
-                  }`}
+                    }`}
                 >
                   {pandit.available ? "Available" : "Booked"}
                 </span>
@@ -287,7 +286,7 @@ const PanditSection = () => {
                   className="w-full"
                   variant={pandit.available ? "festive" : "outline"}
                   disabled={!pandit.available}
-                  onClick={() => navigate(`/book-pandit/${pandit.id}`)}
+                  onClick={() => navigate(`/pandit/${pandit.id}`)}
                 >
                   <Calendar className="w-4 h-4 mr-2" />
                   {pandit.available ? "Book Now" : "Check Later"}

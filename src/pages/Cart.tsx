@@ -7,22 +7,9 @@ import { Input } from "@/components/ui/input";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import { useToast } from "@/hooks/use-toast";
+import { useCart } from "@/contexts/CartContext";
 
-interface CartItem {
-  id: string;
-  name: string;
-  price: number;
-  originalPrice: number;
-  quantity: number;
-  image: string;
-  category: string;
-}
 
-const initialCartItems: CartItem[] = [
-  { id: "1", name: "Pure Cow Ghee Diya Set", price: 149, originalPrice: 199, quantity: 2, image: "🪔", category: "Diyas" },
-  { id: "c1", name: "Saraswati Puja Combo", price: 499, originalPrice: 699, quantity: 1, image: "📚", category: "Festival Combo" },
-  { id: "4", name: "Fresh Marigold Garland", price: 79, originalPrice: 99, quantity: 3, image: "🌼", category: "Flowers" },
-];
 
 const suggestedAddons = [
   { id: "a1", name: "Premium Dhup Sticks", price: 249, image: "🧴" },
@@ -32,27 +19,9 @@ const suggestedAddons = [
 
 const Cart = () => {
   const { toast } = useToast();
-  const [cartItems, setCartItems] = useState<CartItem[]>(initialCartItems);
+  const { items: cartItems, removeItem, updateQuantity, subtotal } = useCart();
   const [couponCode, setCouponCode] = useState("");
   const [appliedCoupon, setAppliedCoupon] = useState<string | null>(null);
-
-  const updateQuantity = (id: string, delta: number) => {
-    setCartItems((items) =>
-      items.map((item) =>
-        item.id === id
-          ? { ...item, quantity: Math.max(1, item.quantity + delta) }
-          : item
-      )
-    );
-  };
-
-  const removeItem = (id: string) => {
-    setCartItems((items) => items.filter((item) => item.id !== id));
-    toast({
-      title: "Item Removed",
-      description: "Item has been removed from your cart.",
-    });
-  };
 
   const applyCoupon = () => {
     if (couponCode.toUpperCase() === "NAIVEDYA10") {
@@ -71,7 +40,6 @@ const Cart = () => {
     setCouponCode("");
   };
 
-  const subtotal = cartItems.reduce((sum, item) => sum + item.price * item.quantity, 0);
   const discount = appliedCoupon ? Math.round(subtotal * 0.1) : 0;
   const deliveryFee = subtotal > 500 ? 0 : 49;
   const total = subtotal - discount + deliveryFee;
@@ -101,7 +69,7 @@ const Cart = () => {
   return (
     <div className="min-h-screen flex flex-col bg-background">
       <Header />
-      
+
       <main className="flex-1">
         {/* Breadcrumb */}
         <div className="bg-muted/50 border-b border-border">
@@ -121,59 +89,58 @@ const Cart = () => {
             <div className="lg:col-span-2 space-y-4">
               {cartItems.map((item, index) => (
                 <motion.div
-                  key={item.id}
                   initial={{ opacity: 0, x: -20 }}
                   animate={{ opacity: 1, x: 0 }}
-                  transition={{ delay: index * 0.1 }}
-                  className="bg-card rounded-2xl border border-border p-4 md:p-6"
+                  key={item.cartId}
+                  layout
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, scale: 0.9 }}
+                  className="flex items-center gap-4 p-4 bg-card rounded-xl border border-border shadow-sm"
                 >
-                  <div className="flex gap-4">
-                    {/* Image */}
-                    <div className="w-20 h-20 md:w-24 md:h-24 bg-gradient-to-br from-muted/50 to-card rounded-xl flex items-center justify-center flex-shrink-0">
-                      <span className="text-4xl md:text-5xl">{item.image}</span>
-                    </div>
+                  <div className="text-4xl">{item.image}</div>
 
-                    {/* Details */}
-                    <div className="flex-1 min-w-0">
-                      <p className="text-xs text-muted-foreground mb-1">{item.category}</p>
-                      <h3 className="font-medium text-foreground mb-2 truncate">{item.name}</h3>
-                      
-                      <div className="flex items-center gap-2 mb-3">
-                        <span className="font-bold text-primary">₹{item.price}</span>
-                        <span className="text-sm text-muted-foreground line-through">₹{item.originalPrice}</span>
+                  <div className="flex-1">
+                    <h3 className="font-heading font-semibold text-lg">{item.name}</h3>
+                    <p className="text-sm text-muted-foreground">{item.category}</p>
+                    {item.selectedAddons && item.selectedAddons.length > 0 && (
+                      <div className="mt-1 space-y-1">
+                        {item.selectedAddons.map((addon, idx) => (
+                          <p key={idx} className="text-xs text-muted-foreground flex items-center">
+                            <span className="mr-1">+</span> {addon.name} (₹{addon.price})
+                          </p>
+                        ))}
                       </div>
-
-                      <div className="flex items-center justify-between">
-                        {/* Quantity */}
-                        <div className="flex items-center gap-2 bg-muted rounded-lg">
-                          <button
-                            onClick={() => updateQuantity(item.id, -1)}
-                            className="p-2 hover:bg-background rounded-l-lg transition-colors"
-                          >
-                            <Minus className="w-4 h-4" />
-                          </button>
-                          <span className="w-8 text-center font-semibold">{item.quantity}</span>
-                          <button
-                            onClick={() => updateQuantity(item.id, 1)}
-                            className="p-2 hover:bg-background rounded-r-lg transition-colors"
-                          >
-                            <Plus className="w-4 h-4" />
-                          </button>
-                        </div>
-
-                        {/* Total & Remove */}
-                        <div className="flex items-center gap-4">
-                          <span className="font-bold text-lg">₹{item.price * item.quantity}</span>
-                          <button
-                            onClick={() => removeItem(item.id)}
-                            className="p-2 text-muted-foreground hover:text-destructive transition-colors"
-                          >
-                            <Trash2 className="w-5 h-5" />
-                          </button>
-                        </div>
-                      </div>
+                    )}
+                    <div className="mt-2 text-primary font-bold">
+                      ₹{(item.price + (item.selectedAddons?.reduce((acc, a) => acc + a.price, 0) || 0)) * item.quantity}
                     </div>
                   </div>
+
+                  {/* Quantity */}
+                  <div className="flex items-center gap-2 bg-muted rounded-lg">
+                    <button
+                      onClick={() => updateQuantity(item.cartId, item.quantity - 1)}
+                      className="p-2 hover:bg-background rounded-l-lg transition-colors"
+                    >
+                      <Minus className="w-4 h-4" />
+                    </button>
+                    <span className="w-8 text-center font-semibold">{item.quantity}</span>
+                    <button
+                      onClick={() => updateQuantity(item.cartId, item.quantity + 1)}
+                      className="p-2 hover:bg-background rounded-r-lg transition-colors"
+                    >
+                      <Plus className="w-4 h-4" />
+                    </button>
+                  </div>
+
+                  {/* Remove */}
+                  <button
+                    onClick={() => removeItem(item.cartId)}
+                    className="p-2 text-muted-foreground hover:text-destructive transition-colors"
+                  >
+                    <Trash2 className="w-5 h-5" />
+                  </button>
                 </motion.div>
               ))}
 

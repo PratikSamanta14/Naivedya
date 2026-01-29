@@ -5,6 +5,7 @@ import { Search, ShoppingCart, User, MapPin, Menu, X, ChevronDown, LogOut, Setti
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useAuth } from "@/contexts/AuthContext";
+import { useCart } from "@/contexts/CartContext";
 import logo from "@/assets/logo.png";
 const locations = ["Kolkata", "Howrah", "Salt Lake", "Dum Dum", "Barrackpore"];
 
@@ -12,7 +13,7 @@ const Header = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [selectedLocation, setSelectedLocation] = useState("Kolkata");
   const [isLocationOpen, setIsLocationOpen] = useState(false);
-  const [cartCount] = useState(3);
+  const { cartCount } = useCart();
   const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
   const { user, signOut } = useAuth();
   return (
@@ -40,7 +41,7 @@ const Header = () => {
               <span className="text-sm font-medium">{selectedLocation}</span>
               <ChevronDown className={`w-4 h-4 transition-transform ${isLocationOpen ? "rotate-180" : ""}`} />
             </button>
-            
+
             <AnimatePresence>
               {isLocationOpen && (
                 <motion.div
@@ -56,9 +57,8 @@ const Header = () => {
                         setSelectedLocation(loc);
                         setIsLocationOpen(false);
                       }}
-                      className={`w-full px-4 py-3 text-left hover:bg-muted transition-colors ${
-                        selectedLocation === loc ? "bg-primary/10 text-primary" : ""
-                      }`}
+                      className={`w-full px-4 py-3 text-left hover:bg-muted transition-colors ${selectedLocation === loc ? "bg-primary/10 text-primary" : ""
+                        }`}
                     >
                       {loc}
                     </button>
@@ -83,22 +83,24 @@ const Header = () => {
           {/* Right Actions */}
           <div className="flex items-center gap-2 md:gap-4">
             {/* Cart */}
-            <motion.button
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
-              className="relative p-2 md:p-3 rounded-full bg-card hover:bg-muted transition-colors"
-            >
-              <ShoppingCart className="w-5 h-5 md:w-6 md:h-6 text-foreground" />
-              {cartCount > 0 && (
-                <motion.span
-                  initial={{ scale: 0 }}
-                  animate={{ scale: 1 }}
-                  className="absolute -top-1 -right-1 w-5 h-5 flex items-center justify-center text-xs font-bold bg-primary text-primary-foreground rounded-full"
-                >
-                  {cartCount}
-                </motion.span>
-              )}
-            </motion.button>
+            <Link to="/cart">
+              <motion.button
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+                className="relative p-2 md:p-3 rounded-full bg-card hover:bg-muted transition-colors"
+              >
+                <ShoppingCart className="w-5 h-5 md:w-6 md:h-6 text-foreground" />
+                {cartCount > 0 && (
+                  <motion.span
+                    initial={{ scale: 0 }}
+                    animate={{ scale: 1 }}
+                    className="absolute -top-1 -right-1 w-5 h-5 flex items-center justify-center text-xs font-bold bg-primary text-primary-foreground rounded-full"
+                  >
+                    {cartCount}
+                  </motion.span>
+                )}
+              </motion.button>
+            </Link>
 
             {/* User Profile Dropdown */}
             {user ? (
@@ -114,7 +116,7 @@ const Header = () => {
                 >
                   <UserCircle className="w-6 h-6 text-foreground" />
                   <span className="text-sm font-medium hidden md:block">
-                    {user.email?.split('@')[0] || 'User'}
+                    {user.user_metadata?.full_name || user.email?.split('@')[0] || 'User'}
                   </span>
                   <ChevronDown className={`w-4 h-4 transition-transform ${isUserMenuOpen ? "rotate-180" : ""}`} />
                 </motion.button>
@@ -135,7 +137,7 @@ const Header = () => {
                           </div>
                           <div>
                             <p className="font-medium text-foreground">
-                              {user.email?.split('@')[0] || 'User'}
+                              {user.user_metadata?.full_name || user.email?.split('@')[0] || 'User'}
                             </p>
                             <p className="text-sm text-muted-foreground truncate">
                               {user.email}
@@ -146,8 +148,8 @@ const Header = () => {
 
                       {/* Menu Items */}
                       <div className="py-2">
-                        <Link 
-                          to="/profile" 
+                        <Link
+                          to="/profile"
                           className="flex items-center gap-3 px-4 py-3 hover:bg-muted transition-colors"
                           onClick={() => {
                             console.log('Profile link clicked');
@@ -157,9 +159,9 @@ const Header = () => {
                           <User className="w-5 h-5 text-muted-foreground" />
                           <span>My Profile</span>
                         </Link>
-                        
-                        <Link 
-                          to="/orders" 
+
+                        <Link
+                          to="/orders"
                           className="flex items-center gap-3 px-4 py-3 hover:bg-muted transition-colors"
                           onClick={() => {
                             console.log('Orders link clicked');
@@ -169,9 +171,9 @@ const Header = () => {
                           <ShoppingCart className="w-5 h-5 text-muted-foreground" />
                           <span>My Orders</span>
                         </Link>
-                        
-                        <Link 
-                          to="/addresses" 
+
+                        <Link
+                          to="/addresses"
                           className="flex items-center gap-3 px-4 py-3 hover:bg-muted transition-colors"
                           onClick={() => {
                             console.log('Addresses link clicked');
@@ -181,9 +183,9 @@ const Header = () => {
                           <MapPin className="w-5 h-5 text-muted-foreground" />
                           <span>My Addresses</span>
                         </Link>
-                        
-                        <Link 
-                          to="/wishlist" 
+
+                        <Link
+                          to="/wishlist"
                           className="flex items-center gap-3 px-4 py-3 hover:bg-muted transition-colors"
                           onClick={() => {
                             console.log('Wishlist link clicked');
@@ -193,9 +195,9 @@ const Header = () => {
                           <Heart className="w-5 h-5 text-muted-foreground" />
                           <span>Wishlist</span>
                         </Link>
-                        
-                        <Link 
-                          to="/settings" 
+
+                        <Link
+                          to="/settings"
                           className="flex items-center gap-3 px-4 py-3 hover:bg-muted transition-colors"
                           onClick={() => {
                             console.log('Settings link clicked');
@@ -205,9 +207,9 @@ const Header = () => {
                           <Settings className="w-5 h-5 text-muted-foreground" />
                           <span>Account Settings</span>
                         </Link>
-                        
+
                         <hr className="my-2 border-border" />
-                        
+
                         <button
                           onClick={async () => {
                             console.log('Logout button clicked');
@@ -226,7 +228,7 @@ const Header = () => {
 
                 {/* Click outside to close */}
                 {isUserMenuOpen && (
-                  <div 
+                  <div
                     className="fixed inset-0 z-50"
                     onClick={() => {
                       console.log('Click outside detected');
@@ -298,11 +300,10 @@ const Header = () => {
                     <button
                       key={loc}
                       onClick={() => setSelectedLocation(loc)}
-                      className={`px-4 py-2 rounded-full text-sm transition-colors ${
-                        selectedLocation === loc
-                          ? "bg-primary text-primary-foreground"
-                          : "bg-card hover:bg-muted"
-                      }`}
+                      className={`px-4 py-2 rounded-full text-sm transition-colors ${selectedLocation === loc
+                        ? "bg-primary text-primary-foreground"
+                        : "bg-card hover:bg-muted"
+                        }`}
                     >
                       {loc}
                     </button>
@@ -332,17 +333,17 @@ const Header = () => {
                     </div>
                     <div>
                       <p className="font-medium text-foreground">
-                        {user.email?.split('@')[0] || 'User'}
+                        {user.user_metadata?.full_name || user.email?.split('@')[0] || 'User'}
                       </p>
                       <p className="text-sm text-muted-foreground truncate">
                         {user.email}
                       </p>
                     </div>
                   </div>
-                  
+
                   <nav className="mt-3 space-y-1">
-                    <Link 
-                      to="/profile" 
+                    <Link
+                      to="/profile"
                       className="flex items-center gap-3 px-4 py-3 rounded-lg hover:bg-muted transition-colors"
                       onClick={() => {
                         setIsMenuOpen(false);
@@ -352,9 +353,9 @@ const Header = () => {
                       <User className="w-5 h-5 text-muted-foreground" />
                       <span>My Profile</span>
                     </Link>
-                    
-                    <Link 
-                      to="/orders" 
+
+                    <Link
+                      to="/orders"
                       className="flex items-center gap-3 px-4 py-3 rounded-lg hover:bg-muted transition-colors"
                       onClick={() => {
                         setIsMenuOpen(false);
@@ -364,9 +365,9 @@ const Header = () => {
                       <ShoppingCart className="w-5 h-5 text-muted-foreground" />
                       <span>My Orders</span>
                     </Link>
-                    
-                    <Link 
-                      to="/addresses" 
+
+                    <Link
+                      to="/addresses"
                       className="flex items-center gap-3 px-4 py-3 rounded-lg hover:bg-muted transition-colors"
                       onClick={() => {
                         setIsMenuOpen(false);
@@ -376,9 +377,9 @@ const Header = () => {
                       <MapPin className="w-5 h-5 text-muted-foreground" />
                       <span>My Addresses</span>
                     </Link>
-                    
-                    <Link 
-                      to="/wishlist" 
+
+                    <Link
+                      to="/wishlist"
                       className="flex items-center gap-3 px-4 py-3 rounded-lg hover:bg-muted transition-colors"
                       onClick={() => {
                         setIsMenuOpen(false);
@@ -388,9 +389,9 @@ const Header = () => {
                       <Heart className="w-5 h-5 text-muted-foreground" />
                       <span>Wishlist</span>
                     </Link>
-                    
-                    <Link 
-                      to="/settings" 
+
+                    <Link
+                      to="/settings"
                       className="flex items-center gap-3 px-4 py-3 rounded-lg hover:bg-muted transition-colors"
                       onClick={() => {
                         setIsMenuOpen(false);

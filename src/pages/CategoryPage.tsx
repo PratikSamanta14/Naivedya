@@ -8,6 +8,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import { useToast } from "@/hooks/use-toast";
+import { useCart } from "@/contexts/CartContext";
 
 const categoryProducts: Record<string, Array<{
   id: string;
@@ -103,6 +104,7 @@ const categoryInfo: Record<string, { name: string; icon: string; description: st
 const CategoryPage = () => {
   const { slug } = useParams();
   const { toast } = useToast();
+  const { addItem } = useCart();
   const [wishlist, setWishlist] = useState<string[]>([]);
   const [viewMode, setViewMode] = useState<"grid" | "list">("grid");
   const [sortBy, setSortBy] = useState("popular");
@@ -133,10 +135,19 @@ const CategoryPage = () => {
     );
   };
 
-  const handleAddToCart = (name: string) => {
+  const handleAddToCart = (product: any) => {
+    addItem({
+      id: product.id,
+      name: product.name,
+      price: product.price,
+      originalPrice: product.originalPrice,
+      quantity: 1,
+      image: product.image,
+      category: product.category,
+    });
     toast({
       title: "Added to Cart! 🛒",
-      description: `${name} has been added to your cart.`,
+      description: `${product.name} has been added to your cart.`,
     });
   };
 
@@ -151,29 +162,49 @@ const CategoryPage = () => {
   const filteredProducts = sortedProducts.filter((product) => {
     // Price filter
     if (product.price < priceRange[0] || product.price > priceRange[1]) return false;
-    
+
     // Rating filter
     if (selectedRatings.length > 0 && !selectedRatings.some((r) => product.rating >= r)) return false;
-    
+
     // Category-specific filters
     if (selectedFilters["Item Category"]?.length > 0 && slug === "puja-samagri") {
       if (!selectedFilters["Item Category"].includes(product.category)) return false;
     }
-    
+
     if (selectedFilters["Puja Usage"]?.length > 0 && slug === "puja-samagri") {
-      const hasMatchingUsage = product.pujaUsage.some(puja => 
+      const hasMatchingUsage = product.pujaUsage.some(puja =>
         selectedFilters["Puja Usage"].includes(puja)
       );
       if (!hasMatchingUsage) return false;
     }
-    
+
     if (selectedFilters["Availability"]?.length > 0 && slug === "puja-samagri") {
       if (selectedFilters["Availability"].includes("In Stock") && !product.inStock) return false;
       if (selectedFilters["Availability"].includes("Same-Day Delivery") && !product.inStock) return false; // Simplified for demo
     }
-    
+
     return true;
   });
+
+  const handleAddBundleToCart = () => {
+    const bundleProducts = filteredProducts.slice(0, 3);
+    bundleProducts.forEach(product => {
+      addItem({
+        id: product.id,
+        name: product.name,
+        price: product.price,
+        originalPrice: product.originalPrice,
+        quantity: 1,
+        image: product.image,
+        category: product.category,
+      });
+    });
+
+    toast({
+      title: "Bundle Added! 🛍️",
+      description: `${bundleProducts.length} items added to your cart.`,
+    });
+  };
 
   // Get category-specific filters
   const getCategoryFilters = () => {
@@ -238,7 +269,7 @@ const CategoryPage = () => {
   return (
     <div className="min-h-screen flex flex-col bg-background">
       <Header />
-      
+
       <main className="flex-1">
         {/* Hero */}
         <div className="bg-gradient-to-br from-primary/10 via-secondary/10 to-accent/10 border-b border-border">
@@ -247,7 +278,7 @@ const CategoryPage = () => {
               <ArrowLeft className="w-4 h-4" />
               Back to Home
             </Link>
-            
+
             <div className="flex items-center gap-4 mb-2">
               <span className="text-6xl">{category.icon}</span>
               <div>
@@ -326,9 +357,8 @@ const CategoryPage = () => {
                             {Array.from({ length: 5 }).map((_, i) => (
                               <Star
                                 key={i}
-                                className={`w-3 h-3 ${
-                                  i < rating ? "fill-secondary text-secondary" : "text-gray-300"
-                                }`}
+                                className={`w-3 h-3 ${i < rating ? "fill-secondary text-secondary" : "text-gray-300"
+                                  }`}
                               />
                             ))}
                             <span className="text-sm text-muted-foreground ml-1">& Up</span>
@@ -388,7 +418,7 @@ const CategoryPage = () => {
                     <span className="font-semibold text-foreground">{filteredProducts.length}</span> of {products.length} products
                   </p>
                 </div>
-                
+
                 <div className="flex items-center gap-4">
                   <select
                     value={sortBy}
@@ -419,164 +449,155 @@ const CategoryPage = () => {
               </div>
 
               {/* Products Grid */}
-              <div className={`grid gap-4 md:gap-6 mb-12 ${
-                viewMode === "grid" 
-                  ? "grid-cols-2 md:grid-cols-3" 
+              <div className={`grid gap-4 md:gap-6 mb-12 ${viewMode === "grid"
+                  ? "grid-cols-2 md:grid-cols-3"
                   : "grid-cols-1"
-              }`}>
+                }`}>
                 {filteredProducts.map((product, index) => {
                   const isPanditService = slug === "book-pandit" || product.category === "Pandit Service";
-                                
+
                   return isPanditService ? (
                     <Link to={`/pandit/${product.id}`} key={product.id}>
                       <motion.div
                         initial={{ opacity: 0, y: 20 }}
                         animate={{ opacity: 1, y: 0 }}
                         transition={{ delay: index * 0.05 }}
-                        className={`group bg-card rounded-2xl border border-border overflow-hidden shadow-soft hover:shadow-card transition-all duration-300 cursor-pointer ${
-                          viewMode === "list" ? "flex" : ""
-                        }`}
+                        className={`group bg-card rounded-2xl border border-border overflow-hidden shadow-soft hover:shadow-card transition-all duration-300 cursor-pointer ${viewMode === "list" ? "flex" : ""
+                          }`}
                       >
                         {/* Image */}
-                        <div className={`relative bg-gradient-to-br from-muted/50 to-card flex items-center justify-center ${
-                          viewMode === "list" ? "w-40 h-40 flex-shrink-0" : "h-36 md:h-44"
-                        }`}>
-                          <span className={`group-hover:scale-110 transition-transform duration-300 ${
-                            viewMode === "list" ? "text-5xl" : "text-5xl md:text-6xl"
+                        <div className={`relative bg-gradient-to-br from-muted/50 to-card flex items-center justify-center ${viewMode === "list" ? "w-40 h-40 flex-shrink-0" : "h-36 md:h-44"
                           }`}>
+                          <span className={`group-hover:scale-110 transition-transform duration-300 ${viewMode === "list" ? "text-5xl" : "text-5xl md:text-6xl"
+                            }`}>
                             {product.image}
                           </span>
-                              
-                        {product.badge && (
-                          <div className="absolute top-2 left-2 px-2 py-1 bg-primary text-primary-foreground text-xs font-semibold rounded-full">
-                            {product.badge}
+
+                          {product.badge && (
+                            <div className="absolute top-2 left-2 px-2 py-1 bg-primary text-primary-foreground text-xs font-semibold rounded-full">
+                              {product.badge}
+                            </div>
+                          )}
+
+                          <button
+                            onClick={(e) => {
+                              e.preventDefault();
+                              e.stopPropagation();
+                              toggleWishlist(product.id);
+                            }}
+                            className="absolute top-2 right-2 p-2 rounded-full bg-background/80 backdrop-blur-sm hover:bg-background transition-colors"
+                          >
+                            <Heart
+                              className={`w-4 h-4 transition-colors ${wishlist.includes(product.id) ? "fill-primary text-primary" : "text-muted-foreground"
+                                }`}
+                            />
+                          </button>
+                        </div>
+
+                        {/* Content */}
+                        <div className={`p-4 ${viewMode === "list" ? "flex-1 flex flex-col justify-center" : ""}`}>
+                          <h3 className="font-medium text-sm md:text-base text-foreground mb-2 line-clamp-2">
+                            {product.name}
+                          </h3>
+
+                          <div className="flex items-center gap-1 mb-2">
+                            <Star className="w-4 h-3 fill-secondary text-secondary" />
+                            <span className="text-xs font-medium">{product.rating}</span>
+                            <span className="text-xs text-muted-foreground">({product.reviews})</span>
                           </div>
-                        )}
-                              
-                        <button
-                          onClick={(e) => {
-                            e.preventDefault();
-                            e.stopPropagation();
-                            toggleWishlist(product.id);
-                          }}
-                          className="absolute top-2 right-2 p-2 rounded-full bg-background/80 backdrop-blur-sm hover:bg-background transition-colors"
-                        >
-                          <Heart
-                            className={`w-4 h-4 transition-colors ${
-                              wishlist.includes(product.id) ? "fill-primary text-primary" : "text-muted-foreground"
-                            }`}
-                          />
-                        </button>
-                      </div>
-                              
-                      {/* Content */}
-                      <div className={`p-4 ${viewMode === "list" ? "flex-1 flex flex-col justify-center" : ""}`}>
-                        <h3 className="font-medium text-sm md:text-base text-foreground mb-2 line-clamp-2">
-                          {product.name}
-                        </h3>
-                              
-                        <div className="flex items-center gap-1 mb-2">
-                          <Star className="w-4 h-3 fill-secondary text-secondary" />
-                          <span className="text-xs font-medium">{product.rating}</span>
-                          <span className="text-xs text-muted-foreground">({product.reviews})</span>
+
+                          <div className="flex items-center gap-2 mb-3">
+                            <span className="text-lg font-bold text-primary">₹{product.price}</span>
+                            <span className="text-sm text-muted-foreground line-through">₹{product.originalPrice}</span>
+                            <span className="text-xs font-semibold text-green-600">
+                              {Math.round(((product.originalPrice - product.price) / product.originalPrice) * 100)}% OFF
+                            </span>
+                          </div>
+
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            className="w-full text-sm hover:bg-primary hover:text-primary-foreground"
+                          >
+                            View Profile
+                          </Button>
                         </div>
-                              
-                        <div className="flex items-center gap-2 mb-3">
-                          <span className="text-lg font-bold text-primary">₹{product.price}</span>
-                          <span className="text-sm text-muted-foreground line-through">₹{product.originalPrice}</span>
-                          <span className="text-xs font-semibold text-green-600">
-                            {Math.round(((product.originalPrice - product.price) / product.originalPrice) * 100)}% OFF
-                          </span>
-                        </div>
-                              
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          className="w-full text-sm hover:bg-primary hover:text-primary-foreground"
-                        >
-                          View Profile
-                        </Button>
-                      </div>
-                    </motion.div>
-                  </Link>
+                      </motion.div>
+                    </Link>
                   ) : (
                     <Link to={`/product/${product.id}`} key={product.id}>
                       <motion.div
                         initial={{ opacity: 0, y: 20 }}
                         animate={{ opacity: 1, y: 0 }}
                         transition={{ delay: index * 0.05 }}
-                        className={`group bg-card rounded-2xl border border-border overflow-hidden shadow-soft hover:shadow-card transition-all duration-300 cursor-pointer ${
-                          viewMode === "list" ? "flex" : ""
-                        }`}
+                        className={`group bg-card rounded-2xl border border-border overflow-hidden shadow-soft hover:shadow-card transition-all duration-300 cursor-pointer ${viewMode === "list" ? "flex" : ""
+                          }`}
                       >
                         {/* Image */}
-                        <div className={`relative bg-gradient-to-br from-muted/50 to-card flex items-center justify-center ${
-                          viewMode === "list" ? "w-40 h-40 flex-shrink-0" : "h-36 md:h-44"
-                        }`}>
-                          <span className={`group-hover:scale-110 transition-transform duration-300 ${
-                            viewMode === "list" ? "text-5xl" : "text-5xl md:text-6xl"
+                        <div className={`relative bg-gradient-to-br from-muted/50 to-card flex items-center justify-center ${viewMode === "list" ? "w-40 h-40 flex-shrink-0" : "h-36 md:h-44"
                           }`}>
+                          <span className={`group-hover:scale-110 transition-transform duration-300 ${viewMode === "list" ? "text-5xl" : "text-5xl md:text-6xl"
+                            }`}>
                             {product.image}
                           </span>
-                               
-                        {product.badge && (
-                          <div className="absolute top-2 left-2 px-2 py-1 bg-primary text-primary-foreground text-xs font-semibold rounded-full">
-                            {product.badge}
+
+                          {product.badge && (
+                            <div className="absolute top-2 left-2 px-2 py-1 bg-primary text-primary-foreground text-xs font-semibold rounded-full">
+                              {product.badge}
+                            </div>
+                          )}
+
+                          <button
+                            onClick={(e) => {
+                              e.preventDefault();
+                              e.stopPropagation();
+                              toggleWishlist(product.id);
+                            }}
+                            className="absolute top-2 right-2 p-2 rounded-full bg-background/80 backdrop-blur-sm hover:bg-background transition-colors"
+                          >
+                            <Heart
+                              className={`w-4 h-4 transition-colors ${wishlist.includes(product.id) ? "fill-primary text-primary" : "text-muted-foreground"
+                                }`}
+                            />
+                          </button>
+                        </div>
+
+                        {/* Content */}
+                        <div className={`p-4 ${viewMode === "list" ? "flex-1 flex flex-col justify-center" : ""}`}>
+                          <h3 className="font-medium text-sm md:text-base text-foreground mb-2 line-clamp-2">
+                            {product.name}
+                          </h3>
+
+                          <div className="flex items-center gap-1 mb-2">
+                            <Star className="w-3 h-3 fill-secondary text-secondary" />
+                            <span className="text-xs font-medium">{product.rating}</span>
+                            <span className="text-xs text-muted-foreground">({product.reviews})</span>
                           </div>
-                        )}
-                              
-                        <button
-                          onClick={(e) => {
-                            e.preventDefault();
-                            e.stopPropagation();
-                            toggleWishlist(product.id);
-                          }}
-                          className="absolute top-2 right-2 p-2 rounded-full bg-background/80 backdrop-blur-sm hover:bg-background transition-colors"
-                        >
-                          <Heart
-                            className={`w-4 h-4 transition-colors ${
-                              wishlist.includes(product.id) ? "fill-primary text-primary" : "text-muted-foreground"
-                            }`}
-                          />
-                        </button>
-                      </div>
-                              
-                      {/* Content */}
-                      <div className={`p-4 ${viewMode === "list" ? "flex-1 flex flex-col justify-center" : ""}`}>
-                        <h3 className="font-medium text-sm md:text-base text-foreground mb-2 line-clamp-2">
-                          {product.name}
-                        </h3>
-                              
-                        <div className="flex items-center gap-1 mb-2">
-                          <Star className="w-3 h-3 fill-secondary text-secondary" />
-                          <span className="text-xs font-medium">{product.rating}</span>
-                          <span className="text-xs text-muted-foreground">({product.reviews})</span>
+
+                          <div className="flex items-center gap-2 mb-3">
+                            <span className="text-lg font-bold text-primary">₹{product.price}</span>
+                            <span className="text-sm text-muted-foreground line-through">₹{product.originalPrice}</span>
+                            <span className="text-xs font-semibold text-green-600">
+                              {Math.round(((product.originalPrice - product.price) / product.originalPrice) * 100)}% OFF
+                            </span>
+                          </div>
+
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            className="w-full text-sm hover:bg-primary hover:text-primary-foreground"
+                            onClick={(e) => {
+                              e.preventDefault();
+                              e.stopPropagation();
+                              handleAddToCart(product);
+                            }}
+                          >
+                            <ShoppingCart className="w-4 h-4 mr-2" />
+                            Add to Cart
+                          </Button>
                         </div>
-                              
-                        <div className="flex items-center gap-2 mb-3">
-                          <span className="text-lg font-bold text-primary">₹{product.price}</span>
-                          <span className="text-sm text-muted-foreground line-through">₹{product.originalPrice}</span>
-                          <span className="text-xs font-semibold text-green-600">
-                            {Math.round(((product.originalPrice - product.price) / product.originalPrice) * 100)}% OFF
-                          </span>
-                        </div>
-                              
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          className="w-full text-sm hover:bg-primary hover:text-primary-foreground"
-                          onClick={(e) => {
-                            e.preventDefault();
-                            e.stopPropagation();
-                            handleAddToCart(product.name);
-                          }}
-                        >
-                          <ShoppingCart className="w-4 h-4 mr-2" />
-                          Add to Cart
-                        </Button>
-                      </div>
-                    </motion.div>
-                  </Link>
+                      </motion.div>
+                    </Link>
                   )
                 })}
               </div>
@@ -647,7 +668,7 @@ const CategoryPage = () => {
                         ₹{filteredProducts.slice(0, 3).reduce((sum, p) => sum + p.price, 0)}
                       </p>
                     </div>
-                    <Button variant="festive" size="lg">
+                    <Button variant="festive" size="lg" onClick={handleAddBundleToCart}>
                       <ShoppingCart className="w-5 h-5 mr-2" />
                       Add All to Cart
                     </Button>

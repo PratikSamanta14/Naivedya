@@ -1,313 +1,17 @@
-
-// import { useState, useEffect } from "react";
-// import { useParams, Link } from "react-router-dom";
-// import { motion, AnimatePresence } from "framer-motion";
-// import {
-//   ArrowLeft,
-//   Star,
-//   Phone,
-//   MessageSquare,
-//   MapPin,
-//   Calendar,
-//   Languages,
-//   BadgeCheck,
-//   CheckCircle,
-//   Shield,
-//   AlertTriangle,
-// } from "lucide-react";
-// import { Button } from "@/components/ui/button";
-// import Header from "@/components/Header";
-// import Footer from "@/components/Footer";
-// import { useToast } from "@/hooks/use-toast";
-
-// /* ---------------- TYPES ---------------- */
-
-// interface PanditProfile {
-//   id: string;
-//   name: string;
-//   photo: string;
-//   location: string;
-//   languages: string[];
-//   experience: number;
-//   rating: number;
-//   reviewCount: number;
-//   status: "available_today" | "available_soon" | "booked";
-//   specializations: string[];
-//   baseCharge: number;
-//   travelCharge?: number;
-//   duration: string;
-//   samagriIncluded: boolean;
-//   availability: {
-//     date: string;
-//     slots: string[];
-//     bookedSlots: string[];
-//   }[];
-//   reviews: {
-//     rating: number;
-//     comment: string;
-//     pujaType: string;
-//     date: string;
-//   }[];
-//   verified: boolean;
-//   backgroundCheck: boolean;
-//   devoteeVerified: boolean;
-// }
-
-// /* ---------------- DATA ---------------- */
-
-// const panditProfiles: PanditProfile[] = [
-//   {
-//     id: "p1",
-//     name: "Pandit Rajesh Sharma",
-//     photo: "👳",
-//     location: "Kolkata, Salt Lake",
-//     languages: ["Bengali", "Hindi", "Sanskrit"],
-//     experience: 15,
-//     rating: 4.9,
-//     reviewCount: 128,
-//     status: "available_today",
-//     specializations: ["Wedding", "Durga Puja", "Griha Pravesh"],
-//     baseCharge: 5000,
-//     travelCharge: 500,
-//     duration: "3–4 hours",
-//     samagriIncluded: false,
-//     availability: [
-//       { date: "2024-01-25", slots: ["09:00 AM", "11:00 AM", "02:00 PM"], bookedSlots: ["02:00 PM"] },
-//       { date: "2024-01-26", slots: ["10:00 AM", "01:00 PM"], bookedSlots: [] },
-//     ],
-//     reviews: [
-//       { rating: 5, comment: "Performed Bengali wedding rituals perfectly.", pujaType: "Wedding", date: "2024-01-10" },
-//     ],
-//     verified: true,
-//     backgroundCheck: true,
-//     devoteeVerified: true,
-//   },
-//   {
-//     id: "p2",
-//     name: "Pandit Mukesh Das",
-//     photo: "👨‍🦳",
-//     location: "Kolkata, Dum Dum",
-//     languages: ["Bengali", "Hindi"],
-//     experience: 12,
-//     rating: 4.8,
-//     reviewCount: 95,
-//     status: "available_soon",
-//     specializations: ["Shradh", "Tarpan"],
-//     baseCharge: 3500,
-//     travelCharge: 300,
-//     duration: "2–3 hours",
-//     samagriIncluded: false,
-//     availability: [
-//       { date: "2024-01-26", slots: ["09:00 AM", "01:00 PM"], bookedSlots: ["09:00 AM"] },
-//     ],
-//     reviews: [
-//       { rating: 5, comment: "Handled Shradh rituals respectfully.", pujaType: "Shradh", date: "2024-01-08" },
-//     ],
-//     verified: true,
-//     backgroundCheck: true,
-//     devoteeVerified: false,
-//   },
-// ];
-
-// /* ---------------- COMPONENT ---------------- */
-
-// const PanditBooking = () => {
-//   const { id } = useParams();
-//   const { toast } = useToast();
-
-//   const [selectedPandit, setSelectedPandit] = useState<PanditProfile | null>(null);
-//   const [showBookingModal, setShowBookingModal] = useState(false);
-
-//   /*  AUTO OPEN MODAL WHEN COMING FROM HOME */
-//   useEffect(() => {
-//     if (id) {
-//       const pandit = panditProfiles.find((p) => p.id === id);
-//       if (pandit) {
-//         setSelectedPandit(pandit);
-//         setShowBookingModal(true);
-//       }
-//     }
-//   }, [id]);
-
-//   const handleBook = (pandit: PanditProfile) => {
-//     setSelectedPandit(pandit);
-//     setShowBookingModal(true);
-//   };
-
-//   const confirmBooking = () => {
-//     if (!selectedPandit) return;
-//     toast({
-//       title: "Booking Confirmed ",
-//       description: `Your booking with ${selectedPandit.name} has been successfully confirmed.`,
-//     });
-//     setShowBookingModal(false);
-//     setSelectedPandit(null);
-//   };
-
-//   return (
-//     <div className="min-h-screen flex flex-col bg-background">
-//       <Header />
-
-//       <main className="flex-1">
-//         {/* HERO */}
-//         <div className="border-b bg-gradient-to-br from-primary/10 to-secondary/10">
-//           <div className="container mx-auto px-4 py-8">
-//             <Link to="/" className="flex items-center gap-2 text-primary mb-4">
-//               <ArrowLeft className="w-4 h-4" /> Back to Home
-//             </Link>
-//             <h1 className="font-heading text-3xl font-bold">Book Pandit</h1>
-//             <p className="text-muted-foreground">Verified pandits for every puja</p>
-//           </div>
-//         </div>
-
-//         {/* LISTING */}
-//         <div className="container mx-auto px-4 py-10 grid md:grid-cols-2 gap-6">
-//           {panditProfiles.map((pandit) => (
-//             <motion.div
-//               key={pandit.id}
-//               whileHover={{ y: -6 }}
-//               className="bg-card border rounded-xl p-5 shadow-soft"
-//             >
-//               <div className="flex gap-4">
-//                 <div className="w-16 h-16 rounded-full bg-primary/10 flex items-center justify-center text-2xl">
-//                   {pandit.photo}
-//                 </div>
-
-//                 <div className="flex-1">
-//                   <h3 className="font-bold text-lg">{pandit.name}</h3>
-//                   <div className="flex items-center gap-1 text-sm text-muted-foreground">
-//                     <MapPin className="w-4 h-4" /> {pandit.location}
-//                   </div>
-
-//                   <div className="flex items-center gap-1 mt-1">
-//                     <Star className="w-4 h-4 fill-yellow-400 text-yellow-400" />
-//                     <span>{pandit.rating}</span>
-//                     <span className="text-xs text-muted-foreground">
-//                       ({pandit.reviewCount})
-//                     </span>
-//                   </div>
-
-//                   <div className="flex flex-wrap gap-1 mt-2">
-//                     {pandit.specializations.map((s) => (
-//                       <span key={s} className="px-2 py-1 text-xs bg-primary/10 rounded-full">
-//                         {s}
-//                       </span>
-//                     ))}
-//                   </div>
-
-//                   <div className="mt-3 flex justify-between items-center">
-//                     <span className="font-bold text-primary">₹{pandit.baseCharge}</span>
-//                     <Button size="sm" onClick={() => handleBook(pandit)}>
-//                       Book Now
-//                     </Button>
-//                   </div>
-//                 </div>
-//               </div>
-
-//               {/* Trust */}
-//               <div className="flex gap-3 mt-4 text-xs text-muted-foreground">
-//                 {pandit.verified && (
-//                   <span className="flex items-center gap-1">
-//                     <BadgeCheck className="w-4 h-4 text-green-500" /> ID Verified
-//                   </span>
-//                 )}
-//                 {pandit.backgroundCheck && (
-//                   <span className="flex items-center gap-1">
-//                     <Shield className="w-4 h-4 text-blue-500" /> Background Checked
-//                   </span>
-//                 )}
-//                 {pandit.devoteeVerified && (
-//                   <span className="flex items-center gap-1">
-//                     <CheckCircle className="w-4 h-4 text-purple-500" /> Devotee Verified
-//                   </span>
-//                 )}
-//               </div>
-//             </motion.div>
-//           ))}
-//         </div>
-//       </main>
-
-//       {/* BOOKING MODAL */}
-//       <AnimatePresence>
-//         {showBookingModal && selectedPandit && (
-//           <motion.div
-//             initial={{ opacity: 0 }}
-//             animate={{ opacity: 1 }}
-//             exit={{ opacity: 0 }}
-//             className="fixed inset-0 bg-black/50 flex items-center justify-center z-50"
-//           >
-//             <motion.div
-//               initial={{ scale: 0.9 }}
-//               animate={{ scale: 1 }}
-//               exit={{ scale: 0.9 }}
-//               className="bg-card rounded-xl p-6 max-w-md w-full"
-//             >
-//               <div className="flex justify-between mb-4">
-//                 <h3 className="font-bold text-xl">Confirm Booking</h3>
-//                 <button onClick={() => setShowBookingModal(false)}>
-//                   <AlertTriangle />
-//                 </button>
-//               </div>
-
-//               <p className="mb-2 font-medium">{selectedPandit.name}</p>
-//               <p className="text-sm text-muted-foreground mb-4">
-//                 {selectedPandit.location}
-//               </p>
-
-//               <div className="border-t pt-4 space-y-2 text-sm">
-//                 <div className="flex justify-between">
-//                   <span>Puja Charge</span>
-//                   <span>₹{selectedPandit.baseCharge}</span>
-//                 </div>
-//                 {selectedPandit.travelCharge && (
-//                   <div className="flex justify-between">
-//                     <span>Travel Charge</span>
-//                     <span>₹{selectedPandit.travelCharge}</span>
-//                   </div>
-//                 )}
-//                 <div className="flex justify-between font-bold">
-//                   <span>Total</span>
-//                   <span>
-//                     ₹
-//                     {selectedPandit.baseCharge +
-//                       (selectedPandit.travelCharge || 0)}
-//                   </span>
-//                 </div>
-//               </div>
-
-//               <div className="flex gap-3 mt-6">
-//                 <Button variant="outline" className="flex-1" onClick={() => setShowBookingModal(false)}>
-//                   Cancel
-//                 </Button>
-//                 <Button className="flex-1" onClick={confirmBooking}>
-//                   Confirm
-//                 </Button>
-//               </div>
-//             </motion.div>
-//           </motion.div>
-//         )}
-//       </AnimatePresence>
-
-//       <Footer />
-//     </div>
-//   );
-// };
-
-// export default PanditBooking;
 import { useState, useEffect } from "react";
 import { useParams, Link } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
-import { 
-  ArrowLeft, 
-  Star, 
-  Phone, 
-  MessageSquare, 
-  MapPin, 
-  Calendar, 
-  Clock, 
-  Languages, 
-  BadgeCheck, 
-  CheckCircle, 
+import {
+  ArrowLeft,
+  Star,
+  Phone,
+  MessageSquare,
+  MapPin,
+  Calendar,
+  Clock,
+  Languages,
+  BadgeCheck,
+  CheckCircle,
   AlertTriangle,
   Users,
   IndianRupee,
@@ -318,6 +22,7 @@ import { Button } from "@/components/ui/button";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import { useToast } from "@/hooks/use-toast";
+import { useCart } from "@/contexts/CartContext";
 
 interface PanditProfile {
   id: string;
@@ -500,12 +205,12 @@ const panditProfiles: PanditProfile[] = [
 ];
 
 const pujaTypes = [
-  "Wedding", "Lakshmi Puja", "Shradh", "Durga Puja", "Griha Pravesh", 
+  "Wedding", "Lakshmi Puja", "Shradh", "Durga Puja", "Griha Pravesh",
   "Kali Puja", "Satyanarayan Katha", "Navratri", "Tarpan", "Ganesh Puja"
 ];
 
 const locations = [
-  "Kolkata", "Howrah", "Salt Lake", "Dum Dum", "Park Street", 
+  "Kolkata", "Howrah", "Salt Lake", "Dum Dum", "Park Street",
   "New Town", "Baranagar", "Ballygunge", "Behala", "Jadavpur"
 ];
 
@@ -514,7 +219,8 @@ const languages = ["Bengali", "Hindi", "Sanskrit", "English"];
 const PanditBooking = () => {
   const { id } = useParams();
   const { toast } = useToast();
-  
+  const { addItem } = useCart();
+
   // Smart matching state
   const [selectedPuja, setSelectedPuja] = useState("");
   const [selectedLocation, setSelectedLocation] = useState("");
@@ -522,94 +228,108 @@ const PanditBooking = () => {
   const [selectedTime, setSelectedTime] = useState("");
   const [selectedLanguage, setSelectedLanguage] = useState("");
   const [showSmartMatch, setShowSmartMatch] = useState(false);
-  
+
   // Filter state
   const [searchTerm, setSearchTerm] = useState("");
   const [filterSpecialization, setFilterSpecialization] = useState("");
   const [filterExperience, setFilterExperience] = useState<[number, number]>([0, 30]);
   const [filterRating, setFilterRating] = useState(0);
   const [filterStatus, setFilterStatus] = useState("");
-  
+
   // Selected pandit state
   const [selectedPandit, setSelectedPandit] = useState<PanditProfile | null>(null);
   const [showBookingModal, setShowBookingModal] = useState(false);
 
-  // Get all unique specializations
+  // Booking Modal State
+  const [modalDate, setModalDate] = useState("");
+  const [modalTime, setModalTime] = useState("");
+  const [modalPujaType, setModalPujaType] = useState("");
+
+  /*  AUTO OPEN MODAL WHEN COMING FROM HOME */
+  useEffect(() => {
+    if (id) {
+      const pandit = panditProfiles.find((p) => p.id === id);
+      if (pandit) {
+        setSelectedPandit(pandit);
+        setModalDate(selectedDate || "");
+        setModalTime(selectedTime || "");
+        setModalPujaType(selectedPuja || "");
+        setShowBookingModal(true);
+      }
+    }
+  }, [id]);
+
   const allSpecializations = Array.from(
     new Set(panditProfiles.flatMap(p => p.specializations))
   );
 
-  // Filter pandits based on smart matching
   const getSmartMatchedPandits = (): PanditProfile[] => {
     if (!selectedPuja && !selectedLocation && !selectedLanguage) return [];
 
-    return panditProfiles
-      .filter(pandit => {
-        // Match puja type
-        const pujaMatch = !selectedPuja || pandit.specializations.includes(selectedPuja);
-        
-        // Match location
-        const locationMatch = !selectedLocation || pandit.location.toLowerCase().includes(selectedLocation.toLowerCase());
-        
-        // Match language
-        const languageMatch = !selectedLanguage || pandit.languages.includes(selectedLanguage);
-        
-        // Check if pandit is available on selected date
-        const dateMatch = !selectedDate || pandit.availability.some(avail => avail.date === selectedDate);
-        
-        return pujaMatch && locationMatch && languageMatch && dateMatch;
-      })
-      .sort((a, b) => {
-        // Prioritize by:
-        // 1. Specialization match
-        const aSpecMatch = a.specializations.includes(selectedPuja) ? 1 : 0;
-        const bSpecMatch = b.specializations.includes(selectedPuja) ? 1 : 0;
-        
-        // 2. Location proximity (simplified)
-        const aLocMatch = selectedLocation && a.location.toLowerCase().includes(selectedLocation.toLowerCase()) ? 1 : 0;
-        const bLocMatch = selectedLocation && b.location.toLowerCase().includes(selectedLocation.toLowerCase()) ? 1 : 0;
-        
-        // 3. Language match
-        const aLangMatch = selectedLanguage && a.languages.includes(selectedLanguage) ? 1 : 0;
-        const bLangMatch = selectedLanguage && b.languages.includes(selectedLanguage) ? 1 : 0;
-        
-        // 4. Rating
-        const ratingDiff = b.rating - a.rating;
-        
-        return (bSpecMatch - aSpecMatch) * 100 + 
-               (bLocMatch - aLocMatch) * 10 + 
-               (bLangMatch - aLangMatch) * 5 + 
-               ratingDiff;
-      })
-      .slice(0, 3); // Return top 3 matches
+    return panditProfiles.filter(pandit => {
+      const matchesPuja = !selectedPuja || pandit.specializations.includes(selectedPuja);
+      const matchesLocation = !selectedLocation || pandit.location.includes(selectedLocation);
+      const matchesLanguage = !selectedLanguage || pandit.languages.includes(selectedLanguage);
+
+      // Simple date/time check (mock logic)
+      const matchesDate = !selectedDate || pandit.availability.some(d => d.date === selectedDate);
+
+      return matchesPuja && matchesLocation && matchesLanguage && matchesDate;
+    });
   };
 
-  // Filter pandits based on filters
+  const smartMatchedPandits = getSmartMatchedPandits();
+
   const filteredPandits = panditProfiles.filter(pandit => {
     const termMatch = pandit.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                      pandit.location.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                      pandit.specializations.some(spec => spec.toLowerCase().includes(searchTerm.toLowerCase()));
-    
+      pandit.location.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      pandit.specializations.some(spec => spec.toLowerCase().includes(searchTerm.toLowerCase()));
+
     const specializationMatch = !filterSpecialization || pandit.specializations.includes(filterSpecialization);
     const experienceMatch = pandit.experience >= filterExperience[0] && pandit.experience <= filterExperience[1];
     const ratingMatch = pandit.rating >= filterRating;
     const statusMatch = !filterStatus || pandit.status === filterStatus;
-    
+
     return termMatch && specializationMatch && experienceMatch && ratingMatch && statusMatch;
   });
 
-  const smartMatchedPandits = getSmartMatchedPandits();
-
   const handleBookPandit = (pandit: PanditProfile) => {
     setSelectedPandit(pandit);
+    setModalDate(selectedDate || "");
+    setModalTime(selectedTime || "");
+    setModalPujaType(selectedPuja || "");
     setShowBookingModal(true);
   };
 
   const confirmBooking = () => {
     if (selectedPandit) {
+      if (!modalDate || !modalTime) {
+        toast({
+          title: "Missing Details",
+          description: "Please select a date and time for the booking.",
+          variant: "destructive"
+        });
+        return;
+      }
+
+      addItem({
+        id: selectedPandit.id,
+        name: `Pandit Booking: ${selectedPandit.name}`,
+        price: selectedPandit.baseCharge + (selectedPandit.travelCharge || 0),
+        originalPrice: selectedPandit.baseCharge + (selectedPandit.travelCharge || 0) + 1000,
+        quantity: 1,
+        image: selectedPandit.photo,
+        category: "Pandit Services",
+        selectedAddons: [
+          { name: `Date: ${new Date(modalDate).toLocaleDateString()}`, price: 0 },
+          { name: `Time: ${modalTime}`, price: 0 },
+          { name: `Puja: ${modalPujaType || "General"}`, price: 0 },
+        ]
+      });
+
       toast({
-        title: "Booking Confirmed! 📅",
-        description: `Your booking with ${selectedPandit.name} has been confirmed.`,
+        title: "Added to Cart! 🛒",
+        description: `Booking with ${selectedPandit.name} has been added to your cart.`,
       });
       setShowBookingModal(false);
       setSelectedPandit(null);
@@ -619,7 +339,7 @@ const PanditBooking = () => {
   return (
     <div className="min-h-screen flex flex-col bg-background">
       <Header />
-      
+
       <main className="flex-1">
         {/* Hero */}
         <div className="bg-gradient-to-br from-primary/10 via-secondary/10 to-accent/10 border-b border-border">
@@ -628,7 +348,7 @@ const PanditBooking = () => {
               <ArrowLeft className="w-4 h-4" />
               Back to Home
             </Link>
-            
+
             <div className="flex items-center gap-4 mb-2">
               <span className="text-6xl">👳</span>
               <div>
@@ -645,7 +365,7 @@ const PanditBooking = () => {
           {/* Smart Matching Section */}
           <div className="bg-card rounded-2xl p-6 mb-8 border-2 border-primary/20 shadow-lg">
             <h2 className="font-heading text-2xl font-bold text-foreground mb-6 text-center">Find the Best Pandit for Your Puja</h2>
-            
+
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
               <div>
                 <label className="block text-sm font-medium mb-2">Puja Type</label>
@@ -660,7 +380,7 @@ const PanditBooking = () => {
                   ))}
                 </select>
               </div>
-              
+
               <div>
                 <label className="block text-sm font-medium mb-2">Location</label>
                 <select
@@ -674,7 +394,7 @@ const PanditBooking = () => {
                   ))}
                 </select>
               </div>
-              
+
               <div>
                 <label className="block text-sm font-medium mb-2">Date</label>
                 <input
@@ -684,7 +404,7 @@ const PanditBooking = () => {
                   className="w-full px-4 py-2 rounded-lg border border-border bg-background focus:outline-none focus:ring-2 focus:ring-primary text-sm"
                 />
               </div>
-              
+
               <div>
                 <label className="block text-sm font-medium mb-2">Time</label>
                 <select
@@ -698,7 +418,7 @@ const PanditBooking = () => {
                   <option value="evening">Evening (4PM-8PM)</option>
                 </select>
               </div>
-              
+
               <div>
                 <label className="block text-sm font-medium mb-2">Language</label>
                 <select
@@ -713,10 +433,10 @@ const PanditBooking = () => {
                 </select>
               </div>
             </div>
-            
+
             <div className="flex justify-center mt-6">
-              <Button 
-                variant="festive" 
+              <Button
+                variant="festive"
                 size="lg"
                 onClick={() => setShowSmartMatch(true)}
                 disabled={!selectedPuja}
@@ -742,7 +462,7 @@ const PanditBooking = () => {
                         <div className="w-16 h-16 rounded-full bg-gradient-to-br from-primary/10 to-secondary/10 flex items-center justify-center text-2xl">
                           {pandit.photo}
                         </div>
-                        
+
                         <div className="flex-1">
                           <div className="flex items-start justify-between">
                             <h3 className="font-bold text-lg text-foreground">{pandit.name}</h3>
@@ -752,18 +472,18 @@ const PanditBooking = () => {
                               </span>
                             )}
                           </div>
-                          
+
                           <div className="flex items-center gap-1 mb-1">
                             <MapPin className="w-4 h-4 text-muted-foreground" />
                             <span className="text-sm text-muted-foreground">{pandit.location}</span>
                           </div>
-                          
+
                           <div className="flex items-center gap-1 mb-2">
                             <Star className="w-4 h-4 fill-yellow-400 text-yellow-400" />
                             <span className="text-sm font-medium">{pandit.rating}</span>
                             <span className="text-sm text-muted-foreground">({pandit.reviewCount} reviews)</span>
                           </div>
-                          
+
                           <div className="flex flex-wrap gap-1 mb-3">
                             {pandit.specializations.slice(0, 2).map(spec => (
                               <span key={spec} className="px-2 py-1 bg-primary/10 text-primary text-xs rounded-full">
@@ -771,13 +491,13 @@ const PanditBooking = () => {
                               </span>
                             ))}
                           </div>
-                          
+
                           <div className="flex items-center justify-between">
                             <div>
                               <span className="font-bold text-primary">₹{pandit.baseCharge}</span>
                               <span className="text-xs text-muted-foreground"> + travel charges</span>
                             </div>
-                            
+
                             <div className="flex gap-2">
                               <button className="p-2 rounded-full bg-muted hover:bg-muted/80">
                                 <Phone className="w-4 h-4 text-muted-foreground" />
@@ -789,10 +509,10 @@ const PanditBooking = () => {
                           </div>
                         </div>
                       </div>
-                      
+
                       <div className="mt-4 pt-4 border-t border-border flex justify-end">
-                        <Button 
-                          variant="outline" 
+                        <Button
+                          variant="outline"
                           size="sm"
                           onClick={() => handleBookPandit(pandit)}
                         >
@@ -813,7 +533,7 @@ const PanditBooking = () => {
               <div className="sticky top-24 space-y-6">
                 <div className="space-y-3">
                   <h3 className="font-bold text-lg">Filters</h3>
-                  
+
                   <div>
                     <label className="block text-sm font-medium mb-2">Search</label>
                     <input
@@ -824,7 +544,7 @@ const PanditBooking = () => {
                       className="w-full px-3 py-2 rounded-lg border border-border bg-background focus:outline-none focus:ring-2 focus:ring-primary text-sm"
                     />
                   </div>
-                  
+
                   <div>
                     <label className="block text-sm font-medium mb-2">Specialization</label>
                     <select
@@ -838,7 +558,7 @@ const PanditBooking = () => {
                       ))}
                     </select>
                   </div>
-                  
+
                   <div>
                     <label className="block text-sm font-medium mb-2">Experience (years)</label>
                     <div className="flex items-center gap-2">
@@ -853,7 +573,7 @@ const PanditBooking = () => {
                       <span className="text-xs">{filterExperience[1]}+</span>
                     </div>
                   </div>
-                  
+
                   <div>
                     <label className="block text-sm font-medium mb-2">Min Rating</label>
                     <select
@@ -867,7 +587,7 @@ const PanditBooking = () => {
                       <option value="5">5 Stars</option>
                     </select>
                   </div>
-                  
+
                   <div>
                     <label className="block text-sm font-medium mb-2">Status</label>
                     <select
@@ -891,7 +611,7 @@ const PanditBooking = () => {
                 <h2 className="font-heading text-xl font-bold text-foreground">Available Pandits</h2>
                 <p className="text-sm text-muted-foreground">{filteredPandits.length} pandits found</p>
               </div>
-              
+
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 {filteredPandits.map(pandit => (
                   <motion.div
@@ -904,7 +624,7 @@ const PanditBooking = () => {
                         <div className="w-16 h-16 rounded-full bg-gradient-to-br from-primary/10 to-secondary/10 flex items-center justify-center text-2xl">
                           {pandit.photo}
                         </div>
-                        
+
                         <div className="flex-1">
                           <div className="flex items-start justify-between">
                             <h3 className="font-bold text-lg text-foreground">{pandit.name}</h3>
@@ -914,23 +634,23 @@ const PanditBooking = () => {
                               </span>
                             )}
                           </div>
-                          
+
                           <div className="flex items-center gap-1 mb-1">
                             <MapPin className="w-4 h-4 text-muted-foreground" />
                             <span className="text-sm text-muted-foreground">{pandit.location}</span>
                           </div>
-                          
+
                           <div className="flex items-center gap-1 mb-2">
                             <Star className="w-4 h-4 fill-yellow-400 text-yellow-400" />
                             <span className="text-sm font-medium">{pandit.rating}</span>
                             <span className="text-sm text-muted-foreground">({pandit.reviewCount} reviews)</span>
                           </div>
-                          
+
                           <div className="flex items-center gap-1 mb-2">
                             <Languages className="w-4 h-4 text-muted-foreground" />
                             <span className="text-sm text-muted-foreground">{pandit.languages.join(", ")}</span>
                           </div>
-                          
+
                           <div className="flex flex-wrap gap-1 mb-3">
                             {pandit.specializations.slice(0, 3).map(spec => (
                               <span key={spec} className="px-2 py-1 bg-primary/10 text-primary text-xs rounded-full">
@@ -938,13 +658,13 @@ const PanditBooking = () => {
                               </span>
                             ))}
                           </div>
-                          
+
                           <div className="flex items-center justify-between">
                             <div>
                               <span className="font-bold text-primary">₹{pandit.baseCharge}</span>
                               <span className="text-xs text-muted-foreground"> + travel charges</span>
                             </div>
-                            
+
                             <div className="flex gap-2">
                               <button className="p-2 rounded-full bg-muted hover:bg-muted/80">
                                 <Phone className="w-4 h-4 text-muted-foreground" />
@@ -956,7 +676,7 @@ const PanditBooking = () => {
                           </div>
                         </div>
                       </div>
-                      
+
                       {/* Trust indicators */}
                       <div className="mt-4 pt-4 border-t border-border flex flex-wrap gap-3">
                         {pandit.verified && (
@@ -965,14 +685,14 @@ const PanditBooking = () => {
                             <span className="text-muted-foreground">ID Verified</span>
                           </div>
                         )}
-                        
+
                         {pandit.backgroundCheck && (
                           <div className="flex items-center gap-1 text-sm">
                             <Shield className="w-4 h-4 text-blue-500" />
                             <span className="text-muted-foreground">Background Checked</span>
                           </div>
                         )}
-                        
+
                         {pandit.devoteeVerified && (
                           <div className="flex items-center gap-1 text-sm">
                             <CheckCircle className="w-4 h-4 text-purple-500" />
@@ -980,7 +700,7 @@ const PanditBooking = () => {
                           </div>
                         )}
                       </div>
-                      
+
                       {/* Pricing breakdown */}
                       <div className="mt-4 pt-4 border-t border-border">
                         <div className="grid grid-cols-2 gap-2 text-sm">
@@ -1004,7 +724,7 @@ const PanditBooking = () => {
                           </div>
                         </div>
                       </div>
-                      
+
                       {/* Availability */}
                       <div className="mt-4 pt-4 border-t border-border">
                         <div className="flex items-center gap-2 mb-2">
@@ -1019,14 +739,14 @@ const PanditBooking = () => {
                           ))}
                         </div>
                       </div>
-                      
+
                       <div className="mt-4 pt-4 border-t border-border flex justify-between">
                         <div>
                           <span className="text-sm text-muted-foreground">Experience:</span>
                           <span className="text-sm font-medium ml-1">{pandit.experience} years</span>
                         </div>
-                        <Button 
-                          variant="outline" 
+                        <Button
+                          variant="outline"
                           size="sm"
                           onClick={() => handleBookPandit(pandit)}
                         >
@@ -1059,14 +779,14 @@ const PanditBooking = () => {
             >
               <div className="flex justify-between items-start mb-4">
                 <h3 className="font-heading text-xl font-bold">Confirm Booking</h3>
-                <button 
+                <button
                   onClick={() => setShowBookingModal(false)}
                   className="p-1 rounded-full hover:bg-muted"
                 >
                   <AlertTriangle className="w-5 h-5" />
                 </button>
               </div>
-              
+
               <div className="flex items-center gap-4 mb-6">
                 <div className="w-16 h-16 rounded-full bg-gradient-to-br from-primary/10 to-secondary/10 flex items-center justify-center text-2xl">
                   {selectedPandit.photo}
@@ -1081,11 +801,16 @@ const PanditBooking = () => {
                   </div>
                 </div>
               </div>
-              
+
               <div className="space-y-4">
                 <div>
                   <label className="block text-sm font-medium mb-2">Select Date</label>
-                  <select className="w-full px-4 py-2 rounded-lg border border-border bg-background focus:outline-none focus:ring-2 focus:ring-primary text-sm">
+                  <select
+                    value={modalDate}
+                    onChange={(e) => setModalDate(e.target.value)}
+                    className="w-full px-4 py-2 rounded-lg border border-border bg-background focus:outline-none focus:ring-2 focus:ring-primary text-sm"
+                  >
+                    <option value="">Select Date</option>
                     {selectedPandit.availability.map((avail, idx) => (
                       <option key={idx} value={avail.date}>
                         {new Date(avail.date).toLocaleDateString()} ({avail.slots.length - avail.bookedSlots.length} slots available)
@@ -1093,20 +818,36 @@ const PanditBooking = () => {
                     ))}
                   </select>
                 </div>
-                
+
                 <div>
                   <label className="block text-sm font-medium mb-2">Select Time Slot</label>
-                  <select className="w-full px-4 py-2 rounded-lg border border-border bg-background focus:outline-none focus:ring-2 focus:ring-primary text-sm">
+                  <select
+                    value={modalTime}
+                    onChange={(e) => setModalTime(e.target.value)}
+                    disabled={!modalDate}
+                    className="w-full px-4 py-2 rounded-lg border border-border bg-background focus:outline-none focus:ring-2 focus:ring-primary text-sm"
+                  >
                     <option value="">Select a slot</option>
-                    <option value="09:00 AM">09:00 AM</option>
-                    <option value="10:00 AM">10:00 AM</option>
-                    <option value="11:00 AM">11:00 AM</option>
-                    <option value="02:00 PM">02:00 PM</option>
-                    <option value="04:00 PM">04:00 PM</option>
-                    <option value="05:00 PM">05:00 PM</option>
+                    {modalDate && selectedPandit.availability.find(a => a.date === modalDate)?.slots.map(slot => (
+                      <option key={slot} value={slot}>{slot}</option>
+                    ))}
                   </select>
                 </div>
-                
+
+                <div>
+                  <label className="block text-sm font-medium mb-2">Puja Type</label>
+                  <select
+                    value={modalPujaType}
+                    onChange={(e) => setModalPujaType(e.target.value)}
+                    className="w-full px-4 py-2 rounded-lg border border-border bg-background focus:outline-none focus:ring-2 focus:ring-primary text-sm"
+                  >
+                    <option value="">Select Puja (Optional)</option>
+                    {selectedPandit.specializations.map(spec => (
+                      <option key={spec} value={spec}>{spec}</option>
+                    ))}
+                  </select>
+                </div>
+
                 <div className="pt-4 border-t border-border">
                   <h4 className="font-medium mb-3">Pricing Breakdown</h4>
                   <div className="space-y-2">
@@ -1126,17 +867,17 @@ const PanditBooking = () => {
                     </div>
                   </div>
                 </div>
-                
+
                 <div className="flex gap-3 pt-4">
-                  <Button 
-                    variant="outline" 
+                  <Button
+                    variant="outline"
                     className="flex-1"
                     onClick={() => setShowBookingModal(false)}
                   >
                     Cancel
                   </Button>
-                  <Button 
-                    variant="festive" 
+                  <Button
+                    variant="festive"
                     className="flex-1"
                     onClick={confirmBooking}
                   >

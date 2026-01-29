@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import { useToast } from "@/hooks/use-toast";
+import { useCart } from "@/contexts/CartContext";
 
 const combosData = [
   {
@@ -218,6 +219,7 @@ const ComboDetail = () => {
   const [quantity, setQuantity] = useState(1);
   const [selectedAddons, setSelectedAddons] = useState<string[]>([]);
 
+  const { addItem } = useCart();
   const combo = combosData.find((c) => c.id === id);
 
   if (!combo) {
@@ -246,6 +248,21 @@ const ComboDetail = () => {
   const totalPrice = combo.price * quantity + addonsTotal;
 
   const handleAddToCart = () => {
+    const selectedAddonDetails = combo.addons
+      .filter((addon) => selectedAddons.includes(addon.id))
+      .map((addon) => ({ name: addon.name, price: addon.price }));
+
+    addItem({
+      id: combo.id,
+      name: combo.name,
+      price: combo.price,
+      originalPrice: combo.originalPrice,
+      quantity: quantity,
+      image: combo.icon,
+      category: "Festival Combo",
+      selectedAddons: selectedAddonDetails,
+    });
+
     toast({
       title: "Added to Cart! 🛒",
       description: `${combo.name} combo has been added to your cart.`,
@@ -255,7 +272,7 @@ const ComboDetail = () => {
   return (
     <div className="min-h-screen flex flex-col bg-background">
       <Header />
-      
+
       <main className="flex-1">
         {/* Breadcrumb */}
         <div className="bg-muted/50 border-b border-border">
@@ -277,7 +294,7 @@ const ComboDetail = () => {
             >
               <div className="aspect-square bg-gradient-to-br from-primary/10 via-secondary/10 to-accent/10 rounded-3xl flex items-center justify-center sticky top-24">
                 <span className="text-[12rem] md:text-[16rem]">{combo.icon}</span>
-                
+
                 {/* Discount Badge */}
                 <div className="absolute top-4 left-4 px-4 py-2 bg-primary text-primary-foreground text-sm font-bold rounded-full">
                   {Math.round(((combo.originalPrice - combo.price) / combo.originalPrice) * 100)}% OFF
@@ -353,11 +370,10 @@ const ComboDetail = () => {
                     <button
                       key={addon.id}
                       onClick={() => toggleAddon(addon.id)}
-                      className={`w-full flex items-center justify-between p-4 rounded-xl border transition-all ${
-                        selectedAddons.includes(addon.id)
-                          ? "border-primary bg-primary/5"
-                          : "border-border hover:border-primary/50"
-                      }`}
+                      className={`w-full flex items-center justify-between p-4 rounded-xl border transition-all ${selectedAddons.includes(addon.id)
+                        ? "border-primary bg-primary/5"
+                        : "border-border hover:border-primary/50"
+                        }`}
                     >
                       <div className="flex items-center gap-3">
                         <span className="text-2xl">{addon.icon}</span>
@@ -365,11 +381,10 @@ const ComboDetail = () => {
                       </div>
                       <div className="flex items-center gap-3">
                         <span className="font-semibold text-primary">+₹{addon.price}</span>
-                        <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center ${
-                          selectedAddons.includes(addon.id)
-                            ? "border-primary bg-primary"
-                            : "border-muted-foreground"
-                        }`}>
+                        <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center ${selectedAddons.includes(addon.id)
+                          ? "border-primary bg-primary"
+                          : "border-muted-foreground"
+                          }`}>
                           {selectedAddons.includes(addon.id) && (
                             <Check className="w-3 h-3 text-primary-foreground" />
                           )}
@@ -397,7 +412,7 @@ const ComboDetail = () => {
                     <Plus className="w-4 h-4" />
                   </button>
                 </div>
-                
+
                 <Button
                   variant="festive"
                   size="lg"

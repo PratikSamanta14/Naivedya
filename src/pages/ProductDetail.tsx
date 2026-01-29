@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import { useToast } from "@/hooks/use-toast";
+import { useCart } from "@/contexts/CartContext";
 
 const productDetails = {
   "ps1": {
@@ -1372,10 +1373,14 @@ const ProductDetail = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
   const [selectedImage, setSelectedImage] = useState(0);
+  const { addItem } = useCart();
   const [quantity, setQuantity] = useState(1);
+  const [activeImage, setActiveImage] = useState(0);
   const [wishlist, setWishlist] = useState(false);
 
-  const product = productDetails[id as keyof typeof productDetails];
+  const product = id && productDetails[id as keyof typeof productDetails]
+    ? productDetails[id as keyof typeof productDetails]
+    : null;
 
   if (!product) {
     return (
@@ -1383,23 +1388,8 @@ const ProductDetail = () => {
         <div className="text-center">
           <h1 className="font-heading text-2xl font-bold mb-4">Product not found</h1>
           <div className="flex flex-col sm:flex-row gap-2 justify-center flex-wrap">
-            <Link to="/category/puja-samagri">
-              <Button variant="outline" className="mb-2 sm:mb-0 sm:mr-2">Back to Puja Samagri</Button>
-            </Link>
-            <Link to="/category/flowers-garlands">
-              <Button variant="outline" className="mb-2 sm:mb-0 sm:mr-2">Back to Flowers & Garlands</Button>
-            </Link>
-            <Link to="/category/idols-murtis">
-              <Button variant="outline" className="mb-2 sm:mb-0 sm:mr-2">Back to Idols & Murtis</Button>
-            </Link>
-            <Link to="/category/prasad-sweets">
-              <Button variant="outline" className="mb-2 sm:mb-0 sm:mr-2">Back to Prasad & Sweets</Button>
-            </Link>
-            <Link to="/category/utensil-rentals">
-              <Button variant="outline" className="mb-2 sm:mb-0 sm:mr-2">Back to Utensil Rentals</Button>
-            </Link>
-            <Link to="/category/puja-knowledge">
-              <Button variant="outline" className="mb-2 sm:mb-0">Back to Puja Knowledge</Button>
+            <Link to="/">
+              <Button variant="festive">Go Home</Button>
             </Link>
           </div>
         </div>
@@ -1407,11 +1397,11 @@ const ProductDetail = () => {
     );
   }
 
-  const toggleWishlist = () => {
+  const handleWishlist = () => {
     setWishlist(!wishlist);
     toast({
-      title: wishlist ? "Removed from Wishlist" : "Added to Wishlist!",
-      description: `${product.name} ${wishlist ? 'removed' : 'added'} to your wishlist.`,
+      title: wishlist ? "Removed from Wishlist" : "Added to Wishlist",
+      description: `${product.name} has been ${wishlist ? "removed from" : "added to"} your wishlist.`,
     });
   };
 
@@ -1438,7 +1428,7 @@ const ProductDetail = () => {
   return (
     <div className="min-h-screen flex flex-col bg-background">
       <Header />
-      
+
       <main className="flex-1">
         {/* Breadcrumb */}
         <div className="container mx-auto px-4 py-4">
@@ -1483,15 +1473,14 @@ const ProductDetail = () => {
               <div className="aspect-square bg-gradient-to-br from-muted/50 to-card rounded-2xl flex items-center justify-center">
                 <span className="text-9xl">{product.images[selectedImage]}</span>
               </div>
-              
+
               <div className="grid grid-cols-4 gap-3">
                 {product.images.map((img, idx) => (
                   <button
                     key={idx}
                     onClick={() => setSelectedImage(idx)}
-                    className={`aspect-square bg-gradient-to-br from-muted/50 to-card rounded-xl flex items-center justify-center ${
-                      selectedImage === idx ? 'ring-2 ring-primary' : ''
-                    }`}
+                    className={`aspect-square bg-gradient-to-br from-muted/50 to-card rounded-xl flex items-center justify-center ${selectedImage === idx ? 'ring-2 ring-primary' : ''
+                      }`}
                   >
                     <span className="text-2xl">{img}</span>
                   </button>
@@ -1527,9 +1516,8 @@ const ProductDetail = () => {
                   className="p-2 rounded-full bg-background/80 backdrop-blur-sm hover:bg-background transition-colors"
                 >
                   <Heart
-                    className={`w-5 h-5 transition-colors ${
-                      wishlist ? "fill-primary text-primary" : "text-muted-foreground"
-                    }`}
+                    className={`w-5 h-5 transition-colors ${wishlist ? "fill-primary text-primary" : "text-muted-foreground"
+                      }`}
                   />
                 </button>
               </div>
@@ -1559,14 +1547,14 @@ const ProductDetail = () => {
               {/* Quantity Selector */}
               <div className="flex items-center gap-4 mb-6">
                 <div className="flex items-center border border-border rounded-lg">
-                  <button 
+                  <button
                     onClick={() => setQuantity(Math.max(1, quantity - 1))}
                     className="px-4 py-2 hover:bg-muted rounded-l-lg"
                   >
                     -
                   </button>
                   <span className="px-4 py-2">{quantity}</span>
-                  <button 
+                  <button
                     onClick={() => setQuantity(quantity + 1)}
                     className="px-4 py-2 hover:bg-muted rounded-r-lg"
                   >
@@ -1584,23 +1572,25 @@ const ProductDetail = () => {
 
               {/* Action Buttons */}
               <div className="grid grid-cols-2 gap-4 mb-8">
-                <Button 
-                  variant="outline" 
+                <Button
+                  variant="festive"
                   size="lg"
+                  className="flex-1 h-14 text-lg"
                   onClick={handleAddToCart}
-                  className="flex items-center gap-2"
                 >
-                  <ShoppingCart className="w-5 h-5" />
+                  <ShoppingCart className="w-5 h-5 mr-2" />
                   Add to Cart
                 </Button>
-                <Button 
-                  variant="festive" 
-                  size="lg"
-                  onClick={handleBuyNow}
-                  className="flex items-center gap-2"
-                >
-                  Buy Now
-                </Button>
+                <Link to="/cart">
+                  <Button
+                    variant="outline"
+                    size="lg"
+                    className="flex-1 h-14 text-lg w-full"
+                    onClick={handleAddToCart}
+                  >
+                    Buy Now
+                  </Button>
+                </Link>
               </div>
 
               {/* Benefits */}
@@ -1657,14 +1647,14 @@ const ProductDetail = () => {
             <h2 className="font-heading text-xl font-bold mb-4">About this Item</h2>
             <div className="prose prose-sm max-w-none">
               <p className="mb-4 text-muted-foreground">{product.description}</p>
-              
+
               <h3 className="font-semibold mb-2">Highlights</h3>
               <ul className="list-disc list-inside mb-4">
                 {product.highlights.map((highlight, idx) => (
                   <li key={idx} className="text-muted-foreground">{highlight}</li>
                 ))}
               </ul>
-              
+
               <h3 className="font-semibold mb-2">Usage in Puja</h3>
               <ul className="list-disc list-inside">
                 {product.usage.map((usage, idx) => (
