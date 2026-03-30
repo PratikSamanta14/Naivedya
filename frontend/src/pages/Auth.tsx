@@ -102,13 +102,9 @@ const Auth = () => {
           });
         }
       } else {
-        const { error } = await signUp(email, password, {
-          full_name: fullName,
-          phone,
-          address
-        });
+        const { error } = await signUp(fullName, email, password);
         if (error) {
-          if (error.message.includes("already registered")) {
+          if (error.message.includes("already exists")) {
             toast({
               title: "Account Exists",
               description: "This email is already registered. Please login instead.",

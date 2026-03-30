@@ -1,0 +1,14 @@
+# MongoDB Configuration
+MONGO_URI=mongodb://localhost:27017/naivedya
+
+# JWT Secret
+JWT_SECRET=your-super-secret-jwt-key-change-this-in-production
+
+# Server Configuration
+PORT=3001
+
+# Stripe Configuration
+STRIPE_SECRET_KEY=sk_test_your_stripe_secret_key_here
+
+# Razorpay Configuration
+RAZORPAY_KEY_SECRET=your_razorpay_secret_here

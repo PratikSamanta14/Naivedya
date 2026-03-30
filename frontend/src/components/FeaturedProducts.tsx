@@ -12,7 +12,7 @@ const products = [
     originalPrice: 199,
     rating: 4.9,
     reviews: 245,
-    image: "🪔",
+    image: "https://images.unsplash.com/photo-1605650123985-115f013bd01d?auto=format&fit=crop&q=80&w=600",
     badge: "Bestseller",
   },
   {
@@ -23,7 +23,7 @@ const products = [
     originalPrice: 149,
     rating: 4.8,
     reviews: 189,
-    image: "🔴",
+    image: "https://images.unsplash.com/photo-1614717140889-1ea23ee2ca1e?auto=format&fit=crop&q=80&w=600",
     badge: "Traditional",
   },
   {
@@ -34,7 +34,7 @@ const products = [
     originalPrice: 349,
     rating: 4.7,
     reviews: 320,
-    image: "🧴",
+    image: "https://images.unsplash.com/photo-1541814032770-4f05b0c74148?auto=format&fit=crop&q=80&w=600",
     badge: null,
   },
   {
@@ -45,7 +45,7 @@ const products = [
     originalPrice: 99,
     rating: 4.9,
     reviews: 412,
-    image: "🌼",
+    image: "https://images.unsplash.com/photo-1601662528567-526cd06f6582?auto=format&fit=crop&q=80&w=600",
     badge: "Fresh Daily",
   },
   {
@@ -56,7 +56,7 @@ const products = [
     originalPrice: 899,
     rating: 4.8,
     reviews: 156,
-    image: "🍽️",
+    image: "https://images.unsplash.com/photo-1594916894002-3deabce3ef30?auto=format&fit=crop&q=80&w=600",
     badge: null,
   },
   {
@@ -67,7 +67,7 @@ const products = [
     originalPrice: 299,
     rating: 4.9,
     reviews: 278,
-    image: "🌿",
+    image: "https://images.unsplash.com/photo-1598501235339-4d6d6e2eef29?auto=format&fit=crop&q=80&w=600",
     badge: "Sacred",
   },
   {
@@ -78,7 +78,7 @@ const products = [
     originalPrice: 179,
     rating: 4.6,
     reviews: 198,
-    image: "⚪",
+    image: "https://images.unsplash.com/photo-1490645935967-10de6ba17061?auto=format&fit=crop&q=80&w=600",
     badge: null,
   },
   {
@@ -89,7 +89,7 @@ const products = [
     originalPrice: 249,
     rating: 4.8,
     reviews: 234,
-    image: "🥛",
+    image: "https://images.unsplash.com/photo-1544004940-02bfbaaa481a?auto=format&fit=crop&q=80&w=600",
     badge: "Pure",
   },
 ];
@@ -151,10 +151,12 @@ const FeaturedProducts = () => {
               className="group bg-card rounded-2xl border border-border overflow-hidden shadow-soft hover:shadow-card transition-all duration-300"
             >
               {/* Image Container */}
-              <div className="relative h-36 md:h-44 bg-gradient-to-br from-muted/50 to-card flex items-center justify-center">
-                <span className="text-5xl md:text-6xl group-hover:scale-110 transition-transform duration-300">
-                  {product.image}
-                </span>
+              <div className="relative h-36 md:h-44 bg-muted flex items-center justify-center overflow-hidden">
+                <img
+                  src={product.image}
+                  alt={product.name}
+                  className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300"
+                />
 
                 {/* Badge */}
                 {product.badge && (
@@ -169,11 +171,10 @@ const FeaturedProducts = () => {
                   className="absolute top-2 right-2 p-2 rounded-full bg-background/80 backdrop-blur-sm hover:bg-background transition-colors"
                 >
                   <Heart
-                    className={`w-4 h-4 transition-colors ${
-                      wishlist.includes(product.id)
+                    className={`w-4 h-4 transition-colors ${wishlist.includes(product.id)
                         ? "fill-primary text-primary"
                         : "text-muted-foreground"
-                    }`}
+                      }`}
                   />
                 </button>
               </div>

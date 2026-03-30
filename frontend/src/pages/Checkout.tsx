@@ -4,16 +4,26 @@ import { motion } from "framer-motion";
 import { ArrowLeft, MapPin, Calendar, Clock, CreditCard, Check, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { Alert, AlertDescription } from "@/components/ui/alert";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import { useToast } from "@/hooks/use-toast";
 import { useCart } from "@/contexts/CartContext";
+import { useAuth } from "@/contexts/AuthContext";
+import PaymentForm from "@/components/PaymentForm";
+import { Elements } from "@stripe/react-stripe-js";
+import { loadStripe } from "@stripe/stripe-js";
+import { PaymentResult } from "@/lib/payment";
+import { ordersAPI } from "@/lib/api";
 
 const Checkout = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
+  const { user, token } = useAuth();
   const [currentStep, setCurrentStep] = useState(1);
   const [loading, setLoading] = useState(false);
+  const [showPaymentForm, setShowPaymentForm] = useState(false);
+  const [stripePromise, setStripePromise] = useState(null);
 
   const [formData, setFormData] = useState({
     fullName: "",
@@ -72,29 +82,145 @@ const Checkout = () => {
   const total = subtotal - discount + deliveryFee;
 
   const handlePlaceOrder = async () => {
+    if (formData.paymentMethod === 'cod') {
+      // Process Cash on Delivery order
+      processCODOrder();
+    } else {
+      // Show payment form for online payments
+      setShowPaymentForm(true);
+    }
+  };
+
+  const processCODOrder = async () => {
     setLoading(true);
-    // Simulate order processing
-    await new Promise((resolve) => setTimeout(resolve, 2000));
+    try {
+      const orderData = {
+        items: cartItems.map(item => ({
+          product: item.id,
+          quantity: item.quantity,
+          price: item.price
+        })),
+        shippingAddress: {
+          fullName: formData.fullName,
+          phone: formData.phone,
+          address: formData.address,
+          city: formData.city,
+          pincode: formData.pincode
+        },
+        pujaDetails: {
+          festival: formData.festival,
+          pujaDate: formData.pujaDate,
+          deliverySlot: formData.deliverySlot,
+          pandit: "Pandit Ramesh Bhattacharya"
+        },
+        subtotal,
+        discount,
+        deliveryFee,
+        total,
+        paymentMethod: "cod"
+      };
 
-    // Prepare order details
-    const orderDetails = {
-      orderId: "NAI" + Math.random().toString(36).substr(2, 9).toUpperCase(),
-      date: new Date().toLocaleDateString("en-IN", { day: "numeric", month: "long", year: "numeric" }),
-      items: cartItems,
-      subtotal,
-      discount,
-      delivery: deliveryFee,
-      total,
-      deliveryDate: new Date(Date.now() + 2 * 24 * 60 * 60 * 1000).toLocaleDateString("en-IN", { day: "numeric", month: "long" }),
-      deliverySlot: formData.deliverySlot || "9:00 AM - 11:00 AM",
-      pandit: "Pandit Ramesh Bhattacharya", // Mock
-      pujaDate: new Date(Date.now() + 3 * 24 * 60 * 60 * 1000).toLocaleDateString("en-IN", { day: "numeric", month: "long" }),
-      shippingAddress: formData // Pass address if needed for invoice
-    };
+      const response = await ordersAPI.create(orderData);
+      
+      clearCart();
+      setLoading(false);
+      
+      const orderDetails = {
+        orderId: response.order.orderId,
+        date: new Date().toLocaleDateString("en-IN", { day: "numeric", month: "long", year: "numeric" }),
+        items: cartItems,
+        subtotal,
+        discount,
+        delivery: deliveryFee,
+        total,
+        deliveryDate: new Date(Date.now() + 2 * 24 * 60 * 60 * 1000).toLocaleDateString("en-IN", { day: "numeric", month: "long" }),
+        deliverySlot: formData.deliverySlot || "9:00 AM - 11:00 AM",
+        pandit: "Pandit Ramesh Bhattacharya",
+        pujaDate: new Date(Date.now() + 3 * 24 * 60 * 60 * 1000).toLocaleDateString("en-IN", { day: "numeric", month: "long" }),
+        shippingAddress: formData,
+        paymentMethod: "Cash on Delivery"
+      };
+      
+      navigate("/order-confirmation", { state: orderDetails });
+    } catch (error: any) {
+      setLoading(false);
+      toast({
+        title: "Order Failed",
+        description: error.message || "Failed to place order. Please try again.",
+        variant: "destructive"
+      });
+    }
+  };
 
-    clearCart();
+  const handlePaymentComplete = async (result: PaymentResult) => {
     setLoading(false);
-    navigate("/order-confirmation", { state: orderDetails });
+    
+    if (result.success) {
+      try {
+        const orderData = {
+          items: cartItems.map(item => ({
+            product: item.id,
+            quantity: item.quantity,
+            price: item.price
+          })),
+          shippingAddress: {
+            fullName: formData.fullName,
+            phone: formData.phone,
+            address: formData.address,
+            city: formData.city,
+            pincode: formData.pincode
+          },
+          pujaDetails: {
+            festival: formData.festival,
+            pujaDate: formData.pujaDate,
+            deliverySlot: formData.deliverySlot,
+            pandit: "Pandit Ramesh Bhattacharya"
+          },
+          subtotal,
+          discount,
+          deliveryFee,
+          total,
+          paymentMethod: formData.paymentMethod,
+          paymentIntent: result.paymentIntent?.id
+        };
+
+        const response = await ordersAPI.create(orderData);
+        
+        clearCart();
+        
+        const orderDetails = {
+          orderId: response.order.orderId,
+          date: new Date().toLocaleDateString("en-IN", { day: "numeric", month: "long", year: "numeric" }),
+          items: cartItems,
+          subtotal,
+          discount,
+          delivery: deliveryFee,
+          total,
+          deliveryDate: new Date(Date.now() + 2 * 24 * 60 * 60 * 1000).toLocaleDateString("en-IN", { day: "numeric", month: "long" }),
+          deliverySlot: formData.deliverySlot || "9:00 AM - 11:00 AM",
+          pandit: "Pandit Ramesh Bhattacharya",
+          pujaDate: new Date(Date.now() + 3 * 24 * 60 * 60 * 1000).toLocaleDateString("en-IN", { day: "numeric", month: "long" }),
+          shippingAddress: formData,
+          paymentMethod: formData.paymentMethod === 'card' ? 'Card Payment' : formData.paymentMethod === 'upi' ? 'UPI Payment' : 'Net Banking',
+          paymentIntent: result.paymentIntent
+        };
+        
+        navigate("/order-confirmation", { state: orderDetails });
+      } catch (error: any) {
+        toast({
+          title: "Order Failed",
+          description: error.message || "Payment successful but failed to create order. Please contact support.",
+          variant: "destructive"
+        });
+      }
+    } else {
+      // Payment failed, show error
+      toast({
+        title: "Payment Failed",
+        description: result.error || "Payment could not be processed. Please try again.",
+        variant: "destructive"
+      });
+    }
   };
 
   const itemsCount = cartItems.reduce((acc, item) => acc + item.quantity, 0);
@@ -303,8 +429,9 @@ const Checkout = () => {
                     <div className="space-y-3">
                       {[
                         { id: "cod", label: "Cash on Delivery", icon: "💵", description: "Pay when you receive" },
-                        { id: "upi", label: "UPI Payment", icon: "📱", description: "GPay, PhonePe, Paytm" },
                         { id: "card", label: "Card Payment", icon: "💳", description: "Credit/Debit Card" },
+                        { id: "upi", label: "UPI Payment", icon: "📱", description: "GPay, PhonePe, Paytm" },
+                        { id: "netbanking", label: "Net Banking", icon: "🏦", description: "Bank Transfer" },
                       ].map((method) => (
                         <button
                           key={method.id}
@@ -329,6 +456,14 @@ const Checkout = () => {
                         </button>
                       ))}
                     </div>
+
+                    {formData.paymentMethod !== 'cod' && (
+                      <Alert>
+                        <AlertDescription>
+                          You will be redirected to a secure payment gateway to complete your transaction.
+                        </AlertDescription>
+                      </Alert>
+                    )}
                   </div>
                 )}
 
@@ -356,7 +491,7 @@ const Checkout = () => {
                       {loading ? (
                         <Loader2 className="w-5 h-5 animate-spin" />
                       ) : (
-                        "Place Order"
+                        formData.paymentMethod === 'cod' ? "Place Order" : "Proceed to Payment"
                       )}
                     </Button>
                   )}
@@ -413,6 +548,48 @@ const Checkout = () => {
           </div>
         </div>
       </main>
+
+      {/* Payment Modal */}
+      {showPaymentForm && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50">
+          <motion.div
+            initial={{ opacity: 0, scale: 0.95 }}
+            animate={{ opacity: 1, scale: 1 }}
+            className="bg-background rounded-2xl border border-border max-w-2xl w-full max-h-[90vh] overflow-y-auto"
+          >
+            <div className="p-6 border-b border-border">
+              <div className="flex items-center justify-between">
+                <h2 className="font-heading text-2xl font-bold">Complete Payment</h2>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => setShowPaymentForm(false)}
+                >
+                  <ArrowLeft className="w-4 h-4 mr-2" />
+                  Back
+                </Button>
+              </div>
+              <p className="text-muted-foreground mt-2">
+                Amount payable: <span className="font-bold text-primary">₹{total.toLocaleString('en-IN')}</span>
+              </p>
+            </div>
+            
+            <div className="p-6">
+              <Elements stripe={loadStripe(import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY)}>
+                <PaymentForm
+                  amount={total}
+                  onPaymentComplete={handlePaymentComplete}
+                  customerInfo={{
+                    name: formData.fullName,
+                    email: `${formData.fullName.toLowerCase().replace(/\s+/g, '.')}@example.com`,
+                    phone: formData.phone
+                  }}
+                />
+              </Elements>
+            </div>
+          </motion.div>
+        </div>
+      )}
 
       <Footer />
     </div>

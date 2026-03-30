@@ -178,7 +178,7 @@ const pandits = [
     rating: 4.9,
     reviews: 342,
     available: true,
-    image: "👳",
+    image: "https://images.unsplash.com/photo-1594901967204-63eedfbf6ba0?auto=format&fit=crop&q=80&w=600",
   },
   {
     id: "p2",
@@ -189,7 +189,7 @@ const pandits = [
     rating: 4.8,
     reviews: 256,
     available: true,
-    image: "🧔",
+    image: "https://images.unsplash.com/photo-1620294977931-778eaee033bc?auto=format&fit=crop&q=80&w=600",
   },
   {
     id: "p3",
@@ -200,7 +200,7 @@ const pandits = [
     rating: 5.0,
     reviews: 489,
     available: false,
-    image: "👨‍🦳",
+    image: "https://images.unsplash.com/photo-1563240619-44ce0ceebcf0?auto=format&fit=crop&q=80&w=600",
   },
   {
     id: "p4",
@@ -211,7 +211,7 @@ const pandits = [
     rating: 4.7,
     reviews: 178,
     available: true,
-    image: "🧑",
+    image: "https://images.unsplash.com/photo-1542178243-78f7d98be7d2?auto=format&fit=crop&q=80&w=600",
   },
 ];
 
@@ -251,12 +251,12 @@ const PanditSection = () => {
               whileHover={{ y: -6 }}
               className="bg-background rounded-2xl border shadow-soft hover:shadow-card transition"
             >
-              <div className="h-32 bg-gradient-to-br from-primary/10 to-secondary/10 flex items-center justify-center relative">
-                <span className="text-6xl">{pandit.image}</span>
+              <div className="h-32 bg-muted flex items-center justify-center relative overflow-hidden">
+                <img src={pandit.image} alt={pandit.name} className="w-full h-full object-cover" />
                 <span
                   className={`absolute top-3 right-3 px-2 py-1 text-xs rounded-full ${pandit.available
-                      ? "bg-success/20 text-success"
-                      : "bg-muted text-muted-foreground"
+                    ? "bg-success/20 text-success"
+                    : "bg-muted text-muted-foreground"
                     }`}
                 >
                   {pandit.available ? "Available" : "Booked"}

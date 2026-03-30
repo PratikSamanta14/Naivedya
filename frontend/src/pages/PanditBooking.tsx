@@ -61,7 +61,7 @@ const panditProfiles: PanditProfile[] = [
   {
     id: "p1",
     name: "Pandit Rajesh Sharma",
-    photo: "👳",
+    photo: "https://images.unsplash.com/photo-1594901967204-63eedfbf6ba0?auto=format&fit=crop&q=80&w=600",
     location: "Kolkata, Salt Lake",
     languages: ["Bengali", "Hindi", "Sanskrit"],
     experience: 15,
@@ -92,7 +92,7 @@ const panditProfiles: PanditProfile[] = [
   {
     id: "p2",
     name: "Pandit Mukesh Das",
-    photo: "👨‍🦳",
+    photo: "https://images.unsplash.com/photo-1563240619-44ce0ceebcf0?auto=format&fit=crop&q=80&w=600",
     location: "Kolkata, Dum Dum",
     languages: ["Bengali", "Hindi"],
     experience: 12,
@@ -120,7 +120,7 @@ const panditProfiles: PanditProfile[] = [
   {
     id: "p3",
     name: "Pandit Arjun Chatterjee",
-    photo: "👴",
+    photo: "https://images.unsplash.com/photo-1532073150508-0c1df022bdd1?auto=format&fit=crop&q=80&w=600",
     location: "Howrah, City Center",
     languages: ["Bengali", "Hindi", "Sanskrit"],
     experience: 20,
@@ -149,7 +149,7 @@ const panditProfiles: PanditProfile[] = [
   {
     id: "p4",
     name: "Pandit Debabrata Ghosh",
-    photo: "🧔",
+    photo: "https://images.unsplash.com/photo-1620294977931-778eaee033bc?auto=format&fit=crop&q=80&w=600",
     location: "Kolkata, Park Street",
     languages: ["Bengali", "Hindi", "English"],
     experience: 8,
@@ -177,7 +177,7 @@ const panditProfiles: PanditProfile[] = [
   {
     id: "p5",
     name: "Pandit Sumit Sinha",
-    photo: "👨‍🦰",
+    photo: "https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?auto=format&fit=crop&q=80&w=600",
     location: "Kolkata, New Town",
     languages: ["Bengali", "Hindi"],
     experience: 5,
@@ -350,7 +350,7 @@ const PanditBooking = () => {
             </Link>
 
             <div className="flex items-center gap-4 mb-2">
-              <span className="text-6xl">👳</span>
+              <span className="text-6xl">🪔</span>
               <div>
                 <h1 className="font-heading text-3xl md:text-4xl font-bold text-foreground">
                   Book Pandit – Expert Puja Performers
@@ -459,8 +459,8 @@ const PanditBooking = () => {
                   >
                     <div className="p-5">
                       <div className="flex items-start gap-4">
-                        <div className="w-16 h-16 rounded-full bg-gradient-to-br from-primary/10 to-secondary/10 flex items-center justify-center text-2xl">
-                          {pandit.photo}
+                        <div className="w-16 h-16 rounded-full bg-muted flex items-center justify-center overflow-hidden">
+                          <img src={pandit.photo} alt={pandit.name} className="w-full h-full object-cover" />
                         </div>
 
                         <div className="flex-1">
@@ -621,8 +621,8 @@ const PanditBooking = () => {
                   >
                     <div className="p-5">
                       <div className="flex items-start gap-4">
-                        <div className="w-16 h-16 rounded-full bg-gradient-to-br from-primary/10 to-secondary/10 flex items-center justify-center text-2xl">
-                          {pandit.photo}
+                        <div className="w-16 h-16 rounded-full bg-muted flex items-center justify-center overflow-hidden">
+                          <img src={pandit.photo} alt={pandit.name} className="w-full h-full object-cover" />
                         </div>
 
                         <div className="flex-1">
@@ -788,8 +788,8 @@ const PanditBooking = () => {
               </div>
 
               <div className="flex items-center gap-4 mb-6">
-                <div className="w-16 h-16 rounded-full bg-gradient-to-br from-primary/10 to-secondary/10 flex items-center justify-center text-2xl">
-                  {selectedPandit.photo}
+                <div className="w-16 h-16 rounded-full bg-muted flex items-center justify-center overflow-hidden">
+                  <img src={selectedPandit.photo} alt={selectedPandit.name} className="w-full h-full object-cover" />
                 </div>
                 <div>
                   <h4 className="font-bold text-lg">{selectedPandit.name}</h4>

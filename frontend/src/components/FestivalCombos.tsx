@@ -11,7 +11,7 @@ const combos = [
     price: 499,
     originalPrice: 699,
     rating: 4.8,
-    image: "📚",
+    image: "https://images.unsplash.com/photo-1510166089176-b57564a5ec3a?auto=format&fit=crop&q=80&w=600",
   },
   {
     id: 2,
@@ -21,7 +21,7 @@ const combos = [
     price: 599,
     originalPrice: 899,
     rating: 4.9,
-    image: "🪔",
+    image: "https://images.unsplash.com/photo-1605650123985-115f013bd01d?auto=format&fit=crop&q=80&w=600",
   },
   {
     id: 3,
@@ -31,7 +31,7 @@ const combos = [
     price: 1299,
     originalPrice: 1799,
     rating: 5.0,
-    image: "🔱",
+    image: "https://images.unsplash.com/photo-1601662528567-526cd06f6582?auto=format&fit=crop&q=80&w=600",
   },
   {
     id: 4,
@@ -41,7 +41,7 @@ const combos = [
     price: 449,
     originalPrice: 599,
     rating: 4.7,
-    image: "🔧",
+    image: "https://images.unsplash.com/photo-1504148455328-c376907d081c?auto=format&fit=crop&q=80&w=600",
   },
   {
     id: 5,
@@ -51,7 +51,7 @@ const combos = [
     price: 399,
     originalPrice: 549,
     rating: 4.8,
-    image: "🐘",
+    image: "https://images.unsplash.com/photo-1567115160875-103362a7cfd1?auto=format&fit=crop&q=80&w=600",
   },
   {
     id: 6,
@@ -61,7 +61,7 @@ const combos = [
     price: 749,
     originalPrice: 999,
     rating: 4.9,
-    image: "🌙",
+    image: "https://images.unsplash.com/photo-1614717140889-1ea23ee2ca1e?auto=format&fit=crop&q=80&w=600",
   },
   {
     id: 7,
@@ -71,7 +71,7 @@ const combos = [
     price: 349,
     originalPrice: 499,
     rating: 4.6,
-    image: "🦚",
+    image: "https://images.unsplash.com/photo-1508210156976-74fcce0f9a2b?auto=format&fit=crop&q=80&w=600",
   },
   {
     id: 8,
@@ -81,7 +81,7 @@ const combos = [
     price: 549,
     originalPrice: 749,
     rating: 4.9,
-    image: "🌊",
+    image: "https://images.unsplash.com/photo-1549488344-1f9b8d2bd1f3?auto=format&fit=crop&q=80&w=600",
   },
 ];
 
@@ -136,11 +136,13 @@ const FestivalCombos = () => {
               >
                 <div className="h-full bg-card rounded-2xl border border-border overflow-hidden shadow-card hover:shadow-elevated transition-all duration-300 group">
                   {/* Card Header */}
-                  <div className="relative h-40 bg-gradient-to-br from-primary/10 via-secondary/10 to-accent/10 flex items-center justify-center">
-                    <span className="text-6xl group-hover:scale-110 transition-transform duration-300">
-                      {combo.image}
-                    </span>
-                    
+                  <div className="relative h-40 bg-muted flex items-center justify-center overflow-hidden">
+                    <img
+                      src={combo.image}
+                      alt={combo.name}
+                      className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300"
+                    />
+
                     {/* Discount Badge */}
                     <div className="absolute top-3 left-3 px-3 py-1 bg-primary text-primary-foreground text-xs font-bold rounded-full">
                       {Math.round(((combo.originalPrice - combo.price) / combo.originalPrice) * 100)}% OFF
